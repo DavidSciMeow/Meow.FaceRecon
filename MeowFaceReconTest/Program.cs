@@ -1,14 +1,11 @@
 ﻿using Meow.FaceRecon;
+using MeowFaceReconTest;
 using System.Drawing;
 
-string appid = "CydqbcTTasdbybCxT57kKWZQmHjaWjUDWkBFML7nWtvv";
-//string sdklinux = "2Wy6Yojsjyp7DH9vK88Uz4KPAqkqQweSZLsVqTX8Ezia";
-string sdkwin = "2y44ZdPdeNxLGiBYrATCryNB4g8gJyv1BPUTdaq3iLp9";
-
 string fp = "D:/asd.jpeg";
-using var i = Image.FromFile(fp);
 
-using var e = new Meow.FaceRecon.SDK.MultiFaceEngine(appid, sdkwin);
+using var i = Image.FromFile(fp);
+using var e = new Meow.FaceRecon.SDK.MultiFaceEngine(pwd.appid, pwd.sdkwin);
 var b = e.DetectMultiFace(i);
 foreach (var ri in b.faceRect)
 {

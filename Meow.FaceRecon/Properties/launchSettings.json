@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Meow.FaceRecon": {
+      "commandName": "Project",
+      "jsWebView2Debugging": true,
+      "sqlDebugging": true,
+      "nativeDebugging": true
+    }
+  }
+}

@@ -22,6 +22,9 @@
     <None Update="libarcsoft_face.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="libarcsoft_face.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="libarcsoft_face_engine.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -29,7 +32,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="libarcsoft_face_engine.so">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

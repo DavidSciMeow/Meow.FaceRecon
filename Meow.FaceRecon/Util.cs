@@ -188,15 +188,28 @@ namespace Meow.FaceRecon
             pen.DashStyle = ds;
             g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
         }
-        public static Bitmap DrawRectangleWithString(this Bitmap bmp,string s, Point p0, Point p1, Color Color, int LineWidth = 3, DashStyle ds = DashStyle.Solid)
+        /// <summary>
+        /// [Meow扩展]原图中画出字符
+        /// </summary>
+        /// <param name="i">原图</param>
+        /// <param name="s"></param>
+        /// <param name="m">得到的矩形位置</param>
+        /// <param name="Color">颜色</param>
+        /// <param name="fontsize">字号</param>
+        /// <param name="LineWidth">线粗细程度</param>
+        /// <param name="ds">边框类型</param>
+        public static void DrawRectangleWithString(this Image i, string s,
+             MRECT m, Color Color, int fontsize,
+            int LineWidth = 3, DashStyle ds = DashStyle.Solid)
         {
-            using Graphics g = Graphics.FromImage(bmp);
+            Point p0 = new(m.left, m.top);
+            Point p1 = new(m.right, m.bottom);
+            using Graphics g = Graphics.FromImage(i);
             Brush brush = new SolidBrush(Color);
             Pen pen = new(brush, LineWidth);
             pen.DashStyle = ds;
             g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
-            g.DrawString(s, new Font(new FontFamily("微软雅黑"),15), brush, p0.X, p0.Y);
-            return bmp;
+            g.DrawString(s, new Font(new FontFamily("微软雅黑"), fontsize), brush, p0.X, p0.Y);
         }
         /// <summary>
         /// [Meow扩展]获取打包好的Image

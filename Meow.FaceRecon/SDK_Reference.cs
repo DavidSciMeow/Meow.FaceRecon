@@ -46,7 +46,7 @@ namespace Meow.FaceRecon.SDK.Model
     /// <summary>
     /// [SDK]年龄
     /// </summary>
-    public class ASF_AgeInfo
+    public class SDK_AgeInfo
     {
         /// <summary>
         /// 年龄模式
@@ -58,6 +58,22 @@ namespace Meow.FaceRecon.SDK.Model
         /// </summary>
         public int num;
     }
+    /// <summary>
+    /// [SDK]性别
+    /// </summary>
+    public class SDK_GenderInfo
+    {
+        /// <summary>
+        /// 性别构成
+        /// <para>"0" 表示 男性, "1" 表示 女性, "-1" 表示不确定</para>
+        /// </summary>
+        public List<int> genderArray = new();
+        /// <summary>
+        /// 检测的人脸个数
+        /// </summary>
+        public int num;
+    }
+
     /// <summary>
     /// [SDK]活体信息
     /// </summary>

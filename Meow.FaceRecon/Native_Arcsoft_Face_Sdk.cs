@@ -123,7 +123,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="combinedMask">[in] 只支持初始化时候指定需要检测的功能，在process时进一步在这个已经指定的功能集中继续筛选</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFProcessEx), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFProcessEx(IntPtr hEngine, ASVLOFFSCREEN imgData, out ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        public static extern int ASFProcessEx(IntPtr hEngine, ASVLOFFSCREEN imgData, ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 该接口目前仅支持单人脸IR活体检测（不支持年龄、性别、3D角度的检测）
         /// <para>默认取第一张人脸</para>
@@ -219,7 +219,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="genderInfo">[out] 检测到的性别信息</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFGetGender), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFGetGender(IntPtr hEngine, ref ASF_GenderInfo genderInfo);
+        public static extern int ASFGetGender(IntPtr hEngine, out ASF_GenderInfo genderInfo);
         /// <summary>
         /// 获取3D角度信息
         /// </summary>

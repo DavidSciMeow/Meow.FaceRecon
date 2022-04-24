@@ -73,6 +73,33 @@ namespace Meow.FaceRecon.SDK.Model
         /// </summary>
         public int num;
     }
+    /// <summary>
+    /// [SDK]面部朝向
+    /// </summary>
+    public class SDK_Face3DAngle
+    {
+        /// <summary>
+        /// 滚转
+        /// </summary>
+        public List<float> roll = new();
+        /// <summary>
+        /// 偏航
+        /// </summary>
+        public List<float> yaw = new();
+        /// <summary>
+        /// 俯仰
+        /// </summary>
+        public List<float> pitch = new();
+        /// <summary>
+        /// 状态码
+        /// <para>0: 正常，其他数值：出错</para>
+        /// </summary>
+        public List<int> status = new();
+        /// <summary>
+        /// 脸的位置数值
+        /// </summary>
+        public int num;
+    }
 
     /// <summary>
     /// [SDK]活体信息

@@ -288,7 +288,7 @@ namespace Meow.FaceRecon.SDK
         /// <param name="i">图像对象</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo, ASF_GenderInfo) DetectAgeBase(Image i)
+        protected (ASF_MultiFaceInfo, ASF_GenderInfo) DetectGenderBase(Image i)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
             var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_GENDER);
@@ -308,9 +308,9 @@ namespace Meow.FaceRecon.SDK
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) DetectAge(Image i)
+        public (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) DetectGender(Image i)
         {
-            var (mfi, infox) = DetectAgeBase(i);
+            var (mfi, infox) = DetectGenderBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
             Model.SDK_GenderInfo result = new();
             resultmfi.faceNum = mfi.faceNum;
@@ -325,6 +325,82 @@ namespace Meow.FaceRecon.SDK
                 mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
                 mfi.faceOrient += Marshal.SizeOf(typeof(int));
                 infox.genderArray += Marshal.SizeOf(typeof(int));
+            }
+            return (resultmfi, result);
+        }
+    }
+    /// <summary>
+    /// 一个面部朝向检测工具
+    /// </summary>
+    public class AngleFaceProcess : MultiFaceEngine
+    {
+        /// <summary>
+        /// 一个面部朝向检测工具
+        /// </summary>
+        /// <param name="appId">Appid</param>
+        /// <param name="sdkKey">SdkKey</param>
+        /// <param name="dm">检测模式</param>
+        /// <param name="op">角度模式</param>
+        /// <param name="nScale">最小人脸尺寸</param>
+        /// <param name="nMaxFaceNum">最大人脸个数</param>
+        public AngleFaceProcess(
+            string appId, string sdkKey,
+            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
+            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
+            int nScale = 32, int nMaxFaceNum = 10) :
+            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
+        {
+        }
+
+        /// <summary>
+        /// 检测本图片面部朝向
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        protected (ASF_MultiFaceInfo, ASF_Face3DAngle) Detect3DAngleBase(Image i)
+        {
+            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
+            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_FACE3DANGLE);
+            if (s != APIResult.MOK)
+            {
+                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
+            }
+            var s2 = (APIResult)NativeFunction.ASFGetFace3DAngle(detectEngine, out ASF_Face3DAngle infox);
+            if (s2 != APIResult.MOK)
+            {
+                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
+            }
+            return (info, infox);
+        }
+        /// <summary>
+        /// 检测本图片面部朝向
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        public (Model.SDK_MultiFaceInfo, Model.SDK_Face3DAngle) Detect3DAngle(Image i)
+        {
+            var (mfi, infox) = Detect3DAngleBase(i);
+            Model.SDK_MultiFaceInfo resultmfi = new();
+            Model.SDK_Face3DAngle result = new();
+            resultmfi.faceNum = mfi.faceNum;
+            result.num = infox.num;
+            for (int j = 0; j < infox.num; j++)
+            {
+                //构造类
+                result.pitch.Add(Marshal.PtrToStructure<float>(infox.pitch));
+                result.roll.Add(Marshal.PtrToStructure<float>(infox.roll));
+                result.yaw.Add(Marshal.PtrToStructure<float>(infox.yaw));
+                result.status.Add(Marshal.PtrToStructure<int>(infox.status));
+                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
+                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
+                //步进记录(原始)
+                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
+                mfi.faceOrient += Marshal.SizeOf(typeof(int));
+                infox.pitch += Marshal.SizeOf(typeof(float));
+                infox.roll += Marshal.SizeOf(typeof(float));
+                infox.yaw += Marshal.SizeOf(typeof(float));
+                infox.status += Marshal.SizeOf(typeof(int));
             }
             return (resultmfi, result);
         }

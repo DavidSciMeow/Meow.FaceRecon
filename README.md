@@ -5,23 +5,24 @@
  您可以自己调用或者自己扩展基类
  ```
  ## 2 TODO and Complete
-  **TODO**                                      | **isComplete** 
------------------------------------------------|----------------
- Dll外部调用引用                                 | true           
- Dll基础引擎管理                                 | true           
- ASFDetectMultiFace                            | true : Useable 
- ASFProcess_IR/ASFProcessEx_IR                 | pending        
- ASFFaceFeatureExtract/ASFFaceFeatureExtractEx | pending        
- ASFGetAge                                     | true : Useable         
- ASFGetGender                                  | true : Useable         
- ASFGetFace3DAngle                             | pending        
- ASFGetLivenessScore/ASFGetLivenessScore_IR    | pending     
- ## 3 简易使用方法
+  **TODO**                                      | **isComplete** |**UpdateAt**
+-----------------------------------------------|----------------|----------------
+ Dll外部调用引用                                 | √           | 20220421       
+ Dll基础引擎管理                                 | √           | 20220421       
+ ASFDetectMultiFace                            | √ | 20220422       
+ ASFProcess_IR/ASFProcessEx_IR                 | pending        | /
+ ASFFaceFeatureExtract/ASFFaceFeatureExtractEx | pending        | /
+ ASFGetAge                                     | √ | 20220423               
+ ASFGetGender                                  | √ | 20220424               
+ ASFGetFace3DAngle                             | √ | 20220425        
+ ASFGetLivenessScore/ASFGetLivenessScore_IR    | pending        | /
+ ## 3 (基类)简易使用方法
  ### 3.1 检测多个人脸或者单个人脸位置
  `具体可以参考Test的示例`
  ```csharp
     string fp = "D:/asd.jpg"; //文件名
     using var i = Image.FromFile(fp);
+
     using var e = new Meow.FaceRecon.SDK.MultiFaceEngine(pwd.appid, pwd.sdkwin);//申请到的appid,sdkkey
     var b = e.DetectMultiFace(i);
     foreach (var ri in b.faceRect)
@@ -35,6 +36,8 @@
  `具体可参考Test的示例`
  ```csharp
     string fp = "D:/asd.jpg"; //文件名
+    using var i = Image.FromFile(fp);
+
     using var e = new Meow.FaceRecon.SDK.AgeFaceProcess(pwd.appid, pwd.sdkwin);//申请到的appid,sdkkey
     using var e2 = new Meow.FaceRecon.SDK.GenderFaceProcess(pwd.appid, pwd.sdkwin);//申请到的appid,sdkkey
     var (b,a) = e.DetectAge(i);
@@ -43,6 +46,21 @@
     {
         Console.WriteLine($"A:{a.ageArray[j]}|G:{a2.genderArray[j]}");
         i.DrawRectangleInPicture(b.faceRect[j], Color.Red);
+    }
+    var p = Path.GetFileName(fp).Split(".");
+    i.Save($"D:/{p[0]}-Recon.{p[^1]}");
+ ```
+ ### 3.3 检测多个人脸的朝向
+ ```csharp
+    string fp = "D:/asd.jpg"; //文件名
+    using var i = Image.FromFile(fp);
+
+    using var e = new Meow.FaceRecon.SDK.AngleFaceProcess(pwd.appid, pwd.sdkwin);//申请到的appid,sdkkey
+    var (a,b) = e.Detect3DAngle(i);
+    for (int j = 0; j < b.num; j++)
+    {
+        i.DrawRectangleInPicture(a.faceRect[j], Color.Red);
+        Console.WriteLine($"{b.yaw[j]}|{b.roll[j]}|{b.pitch[j]}|{b.status[j]}");
     }
     var p = Path.GetFileName(fp).Split(".");
     i.Save($"D:/{p[0]}-Recon.{p[^1]}");

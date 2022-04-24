@@ -189,7 +189,7 @@ namespace Meow.FaceRecon
             g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
         }
         /// <summary>
-        /// [Meow扩展]原图中画出字符
+        /// [Meow扩展]原图中画出框和字符
         /// </summary>
         /// <param name="i">原图</param>
         /// <param name="s"></param>

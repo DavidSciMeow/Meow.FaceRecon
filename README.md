@@ -6,16 +6,19 @@
  ```
 ## 2 TODO and Complete
   **TODO**                                      | **isComplete** |**UpdateAt**
------------------------------------------------|----------------|----------------
- Dll外部调用引用                                 | √           | 20220421       
- Dll基础引擎管理                                 | √           | 20220421       
- ASFDetectMultiFace                            | √ | 20220422       
- ASFProcess_IR/ASFProcessEx_IR                 | pending        | /
- ASFFaceFeatureExtract/ASFFaceFeatureExtractEx | pending        | /
- ASFGetAge                                     | √ | 20220423               
- ASFGetGender                                  | √ | 20220424               
- ASFGetFace3DAngle                             | √ | 20220425        
- ASFGetLivenessScore/ASFGetLivenessScore_IR    | pending        | /
+------------------------------------------------|----------------|----------------
+ Dll外部调用引用                                  | √ | 20220421       
+ Dll基础引擎管理                                  | √ | 20220421       
+ ASFDetectMultiFace                             | √ | 20220422       
+ ASFProcessEx_IR                                | pending | /
+ ASFProcess_IR                                  | pending | /
+ ASFFaceFeatureExtract                          | pending | /
+ ASFFaceFeatureExtractEx                        | pending | /
+ ASFGetAge                                      | √ | 20220423               
+ ASFGetGender                                   | √ | 20220424               
+ ASFGetFace3DAngle                              | √ | 20220425        
+ ASFGetLivenessScore                            | √ | 20220425
+ ASFGetLivenessScore_IR                         | pending | /
 ## 3 (基类)简易使用方法
 ### 3.0 导入图片或者读取图片(Image对象)
 ```csharp

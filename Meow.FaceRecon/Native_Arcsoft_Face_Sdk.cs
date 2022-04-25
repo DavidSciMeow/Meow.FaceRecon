@@ -235,7 +235,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="livenessInfo">[out] 检测RGB活体结果</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFGetLivenessScore), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFGetLivenessScore(IntPtr hEngine, ref ASF_LivenessInfo livenessInfo);
+        public static extern int ASFGetLivenessScore(IntPtr hEngine, out ASF_LivenessInfo livenessInfo);
         /// <summary>
         /// 获取IR活体结果
         /// </summary>

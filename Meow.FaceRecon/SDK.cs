@@ -125,7 +125,6 @@ namespace Meow.FaceRecon.SDK
             GC.SuppressFinalize(this);
         }
     }
-
     /// <summary>
     /// 一个多人脸检测工具(也可以检测单个人脸)
     /// </summary>
@@ -170,7 +169,7 @@ namespace Meow.FaceRecon.SDK
         /// <param name="i">图像对象</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public Model.SDK_MultiFaceInfo DetectMultiFace(Image i)
+        public Model.SDK_MultiFaceInfo Detect(Image i)
         {
             var info = DetectMultiFaceBase(i);
             Model.SDK_MultiFaceInfo result = new();
@@ -188,7 +187,6 @@ namespace Meow.FaceRecon.SDK
         }
 
     }
-
     /// <summary>
     /// 一个年龄检测工具
     /// </summary>
@@ -237,7 +235,7 @@ namespace Meow.FaceRecon.SDK
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public (Model.SDK_MultiFaceInfo, Model.SDK_AgeInfo) DetectAge(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_AgeInfo) Detect(Image i)
         {
             var (mfi, infox) = DetectAgeBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -258,7 +256,6 @@ namespace Meow.FaceRecon.SDK
             return (resultmfi, result);
         }
     }
-
     /// <summary>
     /// 一个性别检测工具
     /// </summary>
@@ -308,7 +305,7 @@ namespace Meow.FaceRecon.SDK
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) DetectGender(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) Detect(Image i)
         {
             var (mfi, infox) = DetectGenderBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -378,7 +375,7 @@ namespace Meow.FaceRecon.SDK
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public (Model.SDK_MultiFaceInfo, Model.SDK_Face3DAngle) Detect3DAngle(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_Face3DAngle) Detect(Image i)
         {
             var (mfi, infox) = Detect3DAngleBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -405,4 +402,75 @@ namespace Meow.FaceRecon.SDK
             return (resultmfi, result);
         }
     }
+    /// <summary>
+    /// 一个面部是否活人
+    /// </summary>
+    public class LivenessFaceProcess : MultiFaceEngine
+    {
+        /// <summary>
+        /// 一个面部是否活人
+        /// </summary>
+        /// <param name="appId">Appid</param>
+        /// <param name="sdkKey">SdkKey</param>
+        /// <param name="dm">检测模式</param>
+        /// <param name="op">角度模式</param>
+        /// <param name="nScale">最小人脸尺寸</param>
+        /// <param name="nMaxFaceNum">最大人脸个数</param>
+        public LivenessFaceProcess(
+            string appId, string sdkKey,
+            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
+            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
+            int nScale = 32, int nMaxFaceNum = 10) :
+            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
+        {
+        }
+
+        /// <summary>
+        /// 检测本图片是否活人
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        protected (ASF_MultiFaceInfo, ASF_LivenessInfo) DetectLivenessBase(Image i)
+        {
+            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
+            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_LIVENESS);
+            if (s != APIResult.MOK)
+            {
+                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
+            }
+            var s2 = (APIResult)NativeFunction.ASFGetLivenessScore(detectEngine, out ASF_LivenessInfo infox);
+            if (s2 != APIResult.MOK)
+            {
+                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
+            }
+            return (info, infox);
+        }
+        /// <summary>
+        /// 检测本图片是否活人
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_LivenessInfo) Detect(Image i)
+        {
+            var (mfi, infox) = DetectLivenessBase(i);
+            Model.SDK_MultiFaceInfo resultmfi = new();
+            Model.SDK_LivenessInfo result = new();
+            resultmfi.faceNum = mfi.faceNum;
+            result.num = infox.num;
+            for (int j = 0; j < infox.num; j++)
+            {
+                //构造类
+                result.isLive.Add(Marshal.PtrToStructure<int>(infox.isLive));
+                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
+                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
+                //步进记录(原始)
+                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
+                mfi.faceOrient += Marshal.SizeOf(typeof(int));
+                infox.isLive += Marshal.SizeOf(typeof(int));
+            }
+            return (resultmfi, result);
+        }
+    }
+
 }

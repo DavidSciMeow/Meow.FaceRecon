@@ -1,6 +1,7 @@
 ﻿using Meow.FaceRecon;
 using MeowFaceReconTest;
 using System.Drawing;
+using Meow.FaceRecon.SDK.Model;
 
 string fp = "D:/1234.jpg";
 
@@ -56,5 +57,28 @@ var p = Path.GetFileName(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 */
 
+/*完全检查(使用原始数组)
+using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
+SDK_FaceGeneral a = e.Detect(i);
+for (int j = 0; j < a.faceNum; j++)
+{
+    Console.WriteLine($"A:{a.ageArray[j]}|G:{a.genderArray[j]}");
+    Console.WriteLine($"POS:{a.pitch[j]}:{a.yaw[j]}:{a.roll[j]}");
+    i.DrawRectangleInPicture(a.faceRect[j], Color.Red);
+}
+var p = Path.GetFileName(fp).Split(".");
+i.Save($"D:/{p[0]}-Recon.{p[^1]}");
+*/
 
-
+/*完全检查(使用转换人脸列表)
+using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
+var a = e.Detect(i).ConvertIntoFaces();
+foreach (var ix in a)
+{
+    Console.WriteLine($"A:{ix.age}|G:{ix.gender}");
+    Console.WriteLine($"POS:{ix.pitch}:{ix.yaw}:{ix.roll}");
+    i.DrawRectangleInPicture(ix.faceRect, Color.Red);
+}
+var p = Path.GetFileName(fp).Split(".");
+i.Save($"D:/{p[0]}-Recon.{p[^1]}");
+*/

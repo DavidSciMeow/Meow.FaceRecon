@@ -231,5 +231,30 @@ namespace Meow.FaceRecon
             o.pi32Pitch = new int[4] { p, 0, 0, 0 };
             return o;
         }
+        /// <summary>
+        /// 转换成人脸总体列表模式
+        /// </summary>
+        /// <param name="s">SDK_FaceGeneral类</param>
+        /// <returns></returns>
+        public static List<SDK.Model.SDK_Faces> ConvertIntoFaces(this SDK.Model.SDK_FaceGeneral s)
+        {
+            List<SDK.Model.SDK_Faces> fs = new();
+            for (int i = 0; i < s.faceNum; i++)
+            {
+                fs.Add(new()
+                {
+                    age = s.ageArray[i],
+                    faceID = s.faceID[i],
+                    faceOrient = s.faceOrient[i],
+                    status = s.status[i],
+                    faceRect = s.faceRect[i],
+                    gender = s.genderArray[i],
+                    pitch = s.pitch[i],
+                    roll = s.roll[i],
+                    yaw = s.yaw[i],
+                });
+            }
+            return fs;
+        }
     }
 }

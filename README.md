@@ -19,7 +19,7 @@ SDK仍在编写中,没有发布Nuget.
 1. 静态扩展类方法 (施工中)
 1. 识别顺序和软件工作原理 (施工中)
 
-## 1. 申请虹软软件开发AppKey(id)/SDKKey<name id="1"></name>
+## 1. 申请虹软软件开发AppKey(id)/SDKKey<a name="1"></a>
 -------
 点击链接 [这里](https://ai.arcsoft.com.cn/ucenter/resource/build/index.html#/login)  
 登陆后创建应用 -> 抄取AppID 和 SDK_Key
@@ -30,7 +30,7 @@ SDK仍在编写中,没有发布Nuget.
 `xx2xx` 是 错误码的英文  
 `xx3xx` 是 错误码的中文意义  
 
-## 2. TODO and Complete<name id="2"></name>
+## 2. TODO and Complete<a name="2"></a>
 TODO**                                      | **isComplete** |**UpdateAt**
 ------------------------------------------------|----------------|----------------
 Dll外部调用引用                                  | √ | 20220421       
@@ -46,8 +46,8 @@ ASFGetFace3DAngle                              | √ | 20220425
 ASFGetLivenessScore                            | √ | 20220425
 ASFGetLivenessScore_IR                         | pending | /
 
-## 3. (基类)简易使用方法<name id="3"></name>
-### 导入图片或者读取图片(Image对象)<name id="30"></name>
+## 3. (基类)简易使用方法<a name="3"></a>
+### 导入图片或者读取图片(Image对象)<a name="30"></a>
 ```csharp
 using Meow.FaceRecon;
 using MeowFaceReconTest;
@@ -57,7 +57,7 @@ using Meow.FaceRecon.SDK.Model;
 string fp = "D:/1234.jpg";
 using var i = Image.FromFile(fp);
 ```
-### 3.1. 人脸位置标注<name id="31"></name>
+### 3.1. 人脸位置标注<a name="31"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.MultiFaceEngine(pwd.appid, pwd.sdkwin);
 var b = e.Detect(i);
@@ -65,10 +65,10 @@ foreach (var ri in b.faceRect)
 {
     i.DrawRectangleInPicture(ri,Color.Red);
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
-### 3.2. 面部朝向<name id="32"></name>
+### 3.2. 面部朝向<a name="32"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.AngleFaceProcess(pwd.appid, pwd.sdkwin);
 var (a,b) = e.Detect(i);
@@ -78,11 +78,11 @@ for (int j = 0; j < b.num; j++)
     Console.WriteLine($"{b.yaw[j]}|{b.roll[j]}|{b.pitch[j]}|{b.status[j]}");
 
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.3. 图片是否真实(仅支持单人脸)<name id="33"></name>
+### 3.3. 图片是否真实(仅支持单人脸)<a name="33"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.LivenessFaceProcess(pwd.appid, pwd.sdkwin);
 var (a,b) = e.Detect(i);
@@ -92,11 +92,11 @@ for (int j = 0; j < b.num; j++)
     Console.WriteLine($"{b.isLive[j]}");
 
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.4. 年龄和性别<name id="34"></name>
+### 3.4. 年龄和性别<a name="34"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.AgeFaceProcess(pwd.appid, pwd.sdkwin);
 using var e2 = new Meow.FaceRecon.SDK.GenderFaceProcess(pwd.appid, pwd.sdkwin);
@@ -107,11 +107,11 @@ for (int j = 0; j < a.num; j++)
     Console.WriteLine($"A:{a.ageArray[j]}|G:{a2.genderArray[j]}");
     i.DrawRectangleInPicture(b.faceRect[j], Color.Red);
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.5. 完全检查(使用原始数组)<name id="35"></name>
+### 3.5. 完全检查(使用原始数组)<a name="35"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
 SDK_FaceGeneral a = e.Detect(i);
@@ -121,11 +121,11 @@ for (int j = 0; j < a.faceNum; j++)
     Console.WriteLine($"POS:{a.pitch[j]}:{a.yaw[j]}:{a.roll[j]}");
     i.DrawRectangleInPicture(a.faceRect[j], Color.Red);
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.6. 完全检查(使用转换人脸列表[Util静态扩展])<name id="36"></name>
+### 3.6. 完全检查(使用转换人脸列表[Util静态扩展])<a name="36"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
 var a = e.Detect(i).ConvertIntoFaces();
@@ -135,6 +135,6 @@ foreach (var ix in a)
     Console.WriteLine($"POS:{ix.pitch}:{ix.yaw}:{ix.roll}");
     i.DrawRectangleInPicture(ix.faceRect, Color.Red);
 }
-var p = Path.GetFileName(fp).Split(".");
+var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```

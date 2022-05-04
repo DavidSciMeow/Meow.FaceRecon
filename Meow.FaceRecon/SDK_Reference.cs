@@ -100,7 +100,6 @@ namespace Meow.FaceRecon.SDK.Model
         /// </summary>
         public int num;
     }
-
     /// <summary>
     /// [SDK]活体信息
     /// </summary>
@@ -179,10 +178,6 @@ namespace Meow.FaceRecon.SDK.Model
         /// 输入图像的角度，可以参考 ArcFaceCompare_OrientCode . 
         /// </summary>
         public ASF_OrientCode faceOrient;
-        /// <summary>
-        /// face ID，IMAGE模式下不返回FaceID
-        /// </summary>
-        public string faceID;
         /// <summary>
         /// 年龄模式
         /// <para>"0" 代表不确定，大于0的数值代表检测出来的年龄结果</para>

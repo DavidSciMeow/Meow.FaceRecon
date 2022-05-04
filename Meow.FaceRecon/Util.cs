@@ -244,7 +244,6 @@ namespace Meow.FaceRecon
                 fs.Add(new()
                 {
                     age = s.ageArray[i],
-                    faceID = s.faceID[i],
                     faceOrient = s.faceOrient[i],
                     status = s.status[i],
                     faceRect = s.faceRect[i],

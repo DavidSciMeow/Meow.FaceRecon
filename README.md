@@ -16,6 +16,7 @@ SDK仍在编写中,没有发布Nuget.
     1. [年龄和性别](#34)
     1. [完全检查 (使用原始数组)](#35)
     1. [完全检查 (使用转换人脸列表)](#36)
+1. [建议的引擎池使用方法](#4)
 1. 静态扩展类方法 (施工中)
 1. 识别顺序和软件工作原理 (施工中)
 
@@ -23,6 +24,13 @@ SDK仍在编写中,没有发布Nuget.
 -------
 点击链接 [这里](https://ai.arcsoft.com.cn/ucenter/resource/build/index.html#/login)  
 登陆后创建应用 -> 抄取AppID 和 SDK_Key
+
+请将您下载的库文件按照操作系统类别调用放置于文件目录下,  
+我们建议放置在项目下方便更换和读取,  
+如果您存在多个项目同时调用库文件的情况,
+您可以将库文件置于环境变量位置或者  
+`System32` `systemWoW64` (windows)  
+`/lib` `/usr/lib` (linux)
 
 **`请注意`**,`APPID`和`SDKKEY`均为纯字符串,而并非`APP_ID:xxxxxxx`您只需填写冒号后面的字符串`xxxxxxx`即可  
 线程会在调用时出现Exception,捕捉后您可以看到错误码类似 `xx1xx Phase : [xx2xx] xx3xx`  
@@ -50,10 +58,10 @@ ASFGetLivenessScore_IR                         | pending | /
 ### 导入图片或者读取图片(Image对象)<a name="30"></a>
 ```csharp
 using Meow.FaceRecon;
-using MeowFaceReconTest;
 using System.Drawing;
 using Meow.FaceRecon.SDK.Model;
 
+Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;
 string fp = "D:/1234.jpg";
 using var i = Image.FromFile(fp);
 ```
@@ -136,5 +144,18 @@ foreach (var ix in a)
     i.DrawRectangleInPicture(ix.faceRect, Color.Red);
 }
 var p = Path.GetFilename=(fp).Split(".");
+i.Save($"D:/{p[0]}-Recon.{p[^1]}");
+```
+
+## 4.建议使用的引擎池检测方法<a name="4"></a>
+```csharp
+var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //生成一个面部识别引擎管理池
+var a = (await ep.DetAllFaceAsync(i)).ConvertIntoFaces();
+foreach (var ix in a)
+{
+    Console.WriteLine($"A:{ix.age}|G:{ix.gender}|POS:{ix.pitch}deg:{ix.yaw}deg:{ix.roll}deg");
+    i.DrawRectangleInPicture(ix.faceRect, Color.Red);
+}
+var p = Path.GetFileName(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```

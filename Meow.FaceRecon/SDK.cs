@@ -1,562 +1,172 @@
-﻿using Meow.FaceRecon.NativeSDK;
-using System.Drawing;
-using System.Runtime.InteropServices;
+﻿using System.Drawing;
 
-namespace Meow.FaceRecon.SDK
+namespace Meow.FaceRecon
 {
     /// <summary>
-    /// 引擎定义
+    /// 静态操作获取(自动管理池)
     /// </summary>
-    public class Engine : IDisposable
+    public class FaceReconPool
     {
         /// <summary>
-        /// 是否销毁
+        /// 应用程序识别号
         /// </summary>
-        private bool disposedValue;
+        public string Appid { get;private set; }
         /// <summary>
-        /// 引擎指针
+        /// Windows版本使用的Key(调用dll文件时)
         /// </summary>
-        protected IntPtr detectEngine = IntPtr.Zero;
-
+        public string WinKey { get; private set; }
         /// <summary>
-        /// Appid
+        /// Linux版本使用的Key(调用SO文件时)
         /// </summary>
-        public string AppId { get; }
-        /// <summary>
-        /// SdkKey
-        /// </summary>
-        public string SdkKey { get; }
-        /// <summary>
-        /// 是否已经激活
-        /// </summary>
-        public bool IsActivate { get; } = false;
+        public string LinuxKey { get; private set; }
         /// <summary>
         /// 检测模式
         /// </summary>
-        public ASF_DetectMode Mode { get; }
+        public NativeSDK.ASF_DetectMode DetMode { get; private set; } = NativeSDK.ASF_DetectMode.ASF_DETECT_MODE_IMAGE;
         /// <summary>
         /// 角度模式
         /// </summary>
-        public ASF_OrientPriority Orient { get; }
-        /// <summary>
-        /// 引擎检测模式
-        /// </summary>
-        public Mask DetectedMask { get; }
+        public NativeSDK.ASF_OrientPriority OrientPriority { get; private set; } = NativeSDK.ASF_OrientPriority.ASF_OP_0_ONLY;
         /// <summary>
         /// 最小人脸尺寸
         /// </summary>
-        public int Scale { get; }
+        public int Scale { get; private set; } = 32;
         /// <summary>
-        /// 最大人脸数
+        /// 最大人脸个数
         /// </summary>
-        public static int MaxFaceNum { get; private set; }
+        public int MaxFaceNumber { get; private set; } = 10;
+
         /// <summary>
-        /// 初始化基类引擎
+        /// 生成一个自动管理引擎池
         /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
+        /// <param name="appid">应用程序识别号</param>
+        /// <param name="winKey">winKey</param>
+        /// <param name="linuxKey">LinuxKey</param>
         /// <param name="dm">检测模式</param>
         /// <param name="op">角度模式</param>
         /// <param name="nScale">最小人脸尺寸</param>
         /// <param name="nMaxFaceNum">最大人脸个数</param>
-        /// <param name="mode">引擎检测模式</param>
-        public Engine(string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10,
-            Mask mode = Mask.ASF_ALL)
+        public FaceReconPool(string appid, string winKey, string linuxKey, 
+            NativeSDK.ASF_DetectMode dm = NativeSDK.ASF_DetectMode.ASF_DETECT_MODE_IMAGE, 
+            NativeSDK.ASF_OrientPriority op = NativeSDK.ASF_OrientPriority.ASF_OP_0_ONLY, 
+            int nScale = 0, int nMaxFaceNum = 0)
         {
-            AppId = appId;
-            SdkKey = sdkKey;
-            Mode = dm;
-            Orient = op;
-            Scale = nScale;
-            MaxFaceNum = nMaxFaceNum;
-            DetectedMask = mode;
-            if (APIResult.MOK != (APIResult)NativeFunction.ASFInitEngine(dm, op, nScale, nMaxFaceNum, (int)mode, out detectEngine))
+            Appid = appid;
+            WinKey = winKey;
+            LinuxKey = linuxKey;
+            this.DetMode = dm;
+            this.OrientPriority = op;
+            this.Scale = nScale;
+            this.MaxFaceNumber = nMaxFaceNum;
+            $"EnginePool Init Phase : [OK] 已经实例化引擎管理池".ToLog();
+        }
+        /// <summary>
+        /// *私有,判定系统类型
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        string DetOS()
+        {
+            OperatingSystem osi = Environment.OSVersion;
+            PlatformID plid = osi.Platform;
+            if(plid == PlatformID.Unix)
             {
-                var s = (APIResult)NativeFunction.ASFActivation(appId, sdkKey);
-                if (s != APIResult.MOK)
-                {
-                    if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
-                    {
-                        $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                        IsActivate = true;
-                    }
-                    else
-                    {
-                        throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
-                    }
-                }
-                else
-                {
-                    throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
-                }
+                return LinuxKey;
+            }
+            else if(plid == PlatformID.Win32NT)
+            {
+                return WinKey;
+            }
+            else
+            {
+                $"EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持".ToLog();
+                throw new Exception("EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持");
             }
         }
 
-        /*Dispose Interface*/
         /// <summary>
-        /// 销毁
+        /// 获取多个人脸信息
         /// </summary>
-        /// <param name="disposing">销毁状态</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    APIResult s = (APIResult)NativeFunction.ASFUninitEngine(detectEngine);
-                    $"Dispose Phase :: [{s}] {s.ApiResultToChinese()}".ToLog();
-                }
-                disposedValue = true;
-            }
-        }
-        /// <summary>
-        /// 析构
-        /// </summary>
-        ~Engine()
-        {
-            Dispose(disposing: false);
-        }
-        void IDisposable.Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-    }
-    /// <summary>
-    /// 一个多人脸检测工具(也可以检测单个人脸)
-    /// </summary>
-    public class MultiFaceEngine : Engine
-    {
-        /// <summary>
-        /// 生成一个多人脸检测工具(也可以检测单个人脸)
-        /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public MultiFaceEngine(
-            string appId, string sdkKey, 
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE, 
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY, 
-            int nScale = 32, int nMaxFaceNum = 10) : 
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum, Mask.ASF_ALL)
-        {
-        }
-
-        /// <summary>
-        /// 使用引擎检测本图片(底)
-        /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i">图片</param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected ASF_MultiFaceInfo DetectMultiFaceBase(Image i)
-        {
-            var s = (APIResult)NativeFunction.ASFDetectFacesEx(detectEngine, i.GetBitMapPack(), out ASF_MultiFaceInfo info);
-            if (s != APIResult.MOK)
+        public Task<SDK.Model.SDK_MultiFaceInfo> DetMultiFaceAsync(Image i) 
+            => Task.Factory.StartNew(() =>
             {
-                throw new Exception($"Detect_Face Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            return info;
-        }
+                $"EnginePool Task Phase : [OT_MFA] 正在检测多人脸信息".ToLog();
+                using var e = new SDK.MultiFaceEngine(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_MFA] 多人脸信息检测完成".ToLog();
+                return k;
+            });
         /// <summary>
-        /// 使用引擎检测本图片
+        /// 获取年龄和人脸信息
         /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i">图片</param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public Model.SDK_MultiFaceInfo Detect(Image i)
-        {
-            var info = DetectMultiFaceBase(i);
-            Model.SDK_MultiFaceInfo result = new();
-            result.faceNum = info.faceNum;
-            for (int j = 0; j < info.faceNum; j++)
+        public Task<(SDK.Model.SDK_MultiFaceInfo mfi, SDK.Model.SDK_AgeInfo ageinfo)> DetFaceAgeAsync(Image i) 
+            => Task.Factory.StartNew(() =>
             {
-                //构造类
-                result.faceRect.Add(Marshal.PtrToStructure<MRECT>(info.faceRect));
-                result.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(info.faceOrient));
-                //步进记录(原始)
-                info.faceRect += Marshal.SizeOf(typeof(MRECT));
-                info.faceOrient += Marshal.SizeOf(typeof(int));
-            }
-            return result;
-        }
-
-    }
-    /// <summary>
-    /// 一个年龄检测工具
-    /// </summary>
-    public class AgeFaceProcess : MultiFaceEngine
-    {
+                $"EnginePool Task Phase : [OT_AGE] 正在检测年龄信息".ToLog();
+                using var e = new SDK.AgeFaceProcess(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_AGE] 年龄信息检测完成".ToLog();
+                return k;
+            });
         /// <summary>
-        /// 一个年龄检测工具
+        /// 获取性别和人脸信息
         /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public AgeFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-        /// <summary>
-        /// 检测本图片年龄
-        /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo,ASF_AgeInfo) DetectAgeBase(Image i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info,(int)Mask.ASF_AGE);
-            if (s != APIResult.MOK)
+        public Task<(SDK.Model.SDK_MultiFaceInfo mfi, SDK.Model.SDK_GenderInfo genderinfo)> DetFaceGenderAsync(Image i)
+            => Task.Factory.StartNew(() =>
             {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetAge(detectEngine,out ASF_AgeInfo infox);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Age Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info,infox);
-        }
+                $"EnginePool Task Phase : [OT_GDR] 正在检测性别信息".ToLog();
+                using var e = new SDK.GenderFaceProcess(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_GDR] 性别信息检测完成".ToLog();
+                return k;
+            });
         /// <summary>
-        /// 检测本图片年龄
+        /// 获取人脸朝向和人脸信息
         /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i">图片</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo, Model.SDK_AgeInfo) Detect(Image i)
-        {
-            var (mfi, infox) = DetectAgeBase(i);
-            Model.SDK_MultiFaceInfo resultmfi = new();
-            Model.SDK_AgeInfo result = new();
-            resultmfi.faceNum = mfi.faceNum;
-            result.num = infox.num;
-            for (int j = 0; j < infox.num; j++)
+        public Task<(SDK.Model.SDK_MultiFaceInfo mfi, SDK.Model.SDK_Face3DAngle face3dangle)> DetFaceAngleAsync(Image i)
+            => Task.Factory.StartNew(() =>
             {
-                //构造类
-                result.ageArray.Add(Marshal.PtrToStructure<int>(infox.ageArray));
-                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                infox.ageArray += Marshal.SizeOf(typeof(int));
-            }
-            return (resultmfi, result);
-        }
-    }
-    /// <summary>
-    /// 一个性别检测工具
-    /// </summary>
-    public class GenderFaceProcess : MultiFaceEngine
-    {
+                $"EnginePool Task Phase : [OT_FDA] 正在检测人脸朝向信息".ToLog();
+                using var e = new SDK.AngleFaceProcess(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_FDA] 人脸朝向信息检测完成".ToLog();
+                return k;
+            });
         /// <summary>
-        /// 一个性别检测工具
+        /// 获取人脸真实程度和人脸信息
         /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public GenderFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-
-        /// <summary>
-        /// 检测本图片性别
-        /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i">图片</param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo, ASF_GenderInfo) DetectGenderBase(Image i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_GENDER);
-            if (s != APIResult.MOK)
+        public Task<(SDK.Model.SDK_MultiFaceInfo mfi, SDK.Model.SDK_LivenessInfo livenessinfo)> DetFaceLivenessAsync(Image i)
+            => Task.Factory.StartNew(() =>
             {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetGender(detectEngine, out ASF_GenderInfo infox);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Gender Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info, infox);
-        }
+                $"EnginePool Task Phase : [OT_LIF] 正在检测人脸真实程度信息".ToLog();
+                using var e = new SDK.LivenessFaceProcess(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_LIF] 人脸真实程度信息检测完成".ToLog();
+                return k;
+            });
         /// <summary>
-        /// 检测本图片性别
+        /// 获取总体(除了真实判定)的所有信息
         /// </summary>
-        /// <param name="i">图像对象</param>
+        /// <param name="i">图片</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) Detect(Image i)
-        {
-            var (mfi, infox) = DetectGenderBase(i);
-            Model.SDK_MultiFaceInfo resultmfi = new();
-            Model.SDK_GenderInfo result = new();
-            resultmfi.faceNum = mfi.faceNum;
-            result.num = infox.num;
-            for (int j = 0; j < infox.num; j++)
+        public Task<SDK.Model.SDK_FaceGeneral> DetAllFaceAsync(Image i)
+            => Task.Factory.StartNew(() =>
             {
-                //构造类
-                result.genderArray.Add(Marshal.PtrToStructure<int>(infox.genderArray));
-                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                infox.genderArray += Marshal.SizeOf(typeof(int));
-            }
-            return (resultmfi, result);
-        }
-    }
-    /// <summary>
-    /// 一个面部朝向检测工具
-    /// </summary>
-    public class AngleFaceProcess : MultiFaceEngine
-    {
-        /// <summary>
-        /// 一个面部朝向检测工具
-        /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public AngleFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-
-        /// <summary>
-        /// 检测本图片面部朝向
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo, ASF_Face3DAngle) Detect3DAngleBase(Image i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_FACE3DANGLE);
-            if (s != APIResult.MOK)
-            {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetFace3DAngle(detectEngine, out ASF_Face3DAngle infox);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info, infox);
-        }
-        /// <summary>
-        /// 检测本图片面部朝向
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo, Model.SDK_Face3DAngle) Detect(Image i)
-        {
-            var (mfi, infox) = Detect3DAngleBase(i);
-            Model.SDK_MultiFaceInfo resultmfi = new();
-            Model.SDK_Face3DAngle result = new();
-            resultmfi.faceNum = mfi.faceNum;
-            result.num = infox.num;
-            for (int j = 0; j < infox.num; j++)
-            {
-                //构造类
-                result.pitch.Add(Marshal.PtrToStructure<float>(infox.pitch));
-                result.roll.Add(Marshal.PtrToStructure<float>(infox.roll));
-                result.yaw.Add(Marshal.PtrToStructure<float>(infox.yaw));
-                result.status.Add(Marshal.PtrToStructure<int>(infox.status));
-                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                infox.pitch += Marshal.SizeOf(typeof(float));
-                infox.roll += Marshal.SizeOf(typeof(float));
-                infox.yaw += Marshal.SizeOf(typeof(float));
-                infox.status += Marshal.SizeOf(typeof(int));
-            }
-            return (resultmfi, result);
-        }
-    }
-    /// <summary>
-    /// 一个面部是否活人
-    /// </summary>
-    public class LivenessFaceProcess : MultiFaceEngine
-    {
-        /// <summary>
-        /// 一个面部是否活人
-        /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public LivenessFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-
-        /// <summary>
-        /// 检测本图片是否活人
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo, ASF_LivenessInfo) DetectLivenessBase(Image i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_LIVENESS);
-            if (s != APIResult.MOK)
-            {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetLivenessScore(detectEngine, out ASF_LivenessInfo infox);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info, infox);
-        }
-        /// <summary>
-        /// 检测本图片是否活人
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo, Model.SDK_LivenessInfo) Detect(Image i)
-        {
-            var (mfi, infox) = DetectLivenessBase(i);
-            Model.SDK_MultiFaceInfo resultmfi = new();
-            Model.SDK_LivenessInfo result = new();
-            resultmfi.faceNum = mfi.faceNum;
-            result.num = infox.num;
-            for (int j = 0; j < infox.num; j++)
-            {
-                //构造类
-                result.isLive.Add(Marshal.PtrToStructure<int>(infox.isLive));
-                resultmfi.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                resultmfi.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                infox.isLive += Marshal.SizeOf(typeof(int));
-            }
-            return (resultmfi, result);
-        }
-    }
-    /// <summary>
-    /// 年龄 性别 角度 检测工具
-    /// </summary>
-    public class FullFaceProcess : MultiFaceEngine
-    {
-        /// <summary>
-        /// 年龄 性别 角度 检测工具
-        /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public FullFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-        /// <summary>
-        /// 检测底
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        protected (ASF_MultiFaceInfo, ASF_AgeInfo, ASF_GenderInfo, ASF_Face3DAngle) DetectBase(Image i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)(Mask.ASF_AGE | Mask.ASF_GENDER | Mask.ASF_FACE3DANGLE));
-            if (s != APIResult.MOK)
-            {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s1 = (APIResult)NativeFunction.ASFGetAge(detectEngine, out ASF_AgeInfo info1);
-            if (s1 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Age Phase : [{s1}] {s1.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetGender(detectEngine, out ASF_GenderInfo info2);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Gender Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            var s3 = (APIResult)NativeFunction.ASFGetFace3DAngle(detectEngine, out ASF_Face3DAngle info3);
-            if (s3 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info, info1, info2, info3);
-        }
-        /// <summary>
-        /// 检测本图片
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        public new Model.SDK_FaceGeneral Detect(Image i)
-        {
-            var (mfi,i1,i2,i3) = DetectBase(i);
-            Model.SDK_FaceGeneral result = new();
-            result.faceNum = mfi.faceNum;
-            for (int j = 0; j < mfi.faceNum; j++)
-            {
-                //构造类
-                result.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                result.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                result.ageArray.Add(Marshal.PtrToStructure<int>(i1.ageArray));
-                result.genderArray.Add(Marshal.PtrToStructure<int>(i2.genderArray));
-                result.pitch.Add(Marshal.PtrToStructure<float>(i3.pitch));
-                result.roll.Add(Marshal.PtrToStructure<float>(i3.roll));
-                result.yaw.Add(Marshal.PtrToStructure<float>(i3.yaw));
-                result.status.Add(Marshal.PtrToStructure<int>(i3.status));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                i1.ageArray += Marshal.SizeOf(typeof(int));
-                i2.genderArray += Marshal.SizeOf(typeof(int));
-                i3.pitch += Marshal.SizeOf(typeof(float));
-                i3.roll += Marshal.SizeOf(typeof(float));
-                i3.yaw += Marshal.SizeOf(typeof(float));
-                i3.status += Marshal.SizeOf(typeof(int));
-            }
-            return result;
-        }
+                $"EnginePool Task Phase : [OT_ALL] 正在检测所有人脸信息".ToLog();
+                using var e = new SDK.FullFaceProcess(Appid, DetOS());
+                var k = e.Detect(i);
+                $"EnginePool Task Phase : [OF_ALL] 所有人脸信息检测完成".ToLog();
+                return k;
+            });
     }
 }

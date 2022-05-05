@@ -26,5 +26,5 @@ jobs:
     - name: Publish
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
-       PROJECT_FILE_PATH: Meow.FaceRecon.publish.csproj   #确定发布项目名
-       NUGET_KEY: ${{secrets.NUGET_API_KEY}}  #使用专用key
+       PROJECT_FILE_PATH: /Meow.FaceRecon/Meow.FaceRecon.csproj
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}

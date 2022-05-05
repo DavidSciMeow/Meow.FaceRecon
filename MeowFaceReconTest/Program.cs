@@ -3,6 +3,7 @@ using MeowFaceReconTest;
 using System.Drawing;
 
 Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;
+
 string fp = "D:/123.jpg";
 using var i = Image.FromFile(fp);
 

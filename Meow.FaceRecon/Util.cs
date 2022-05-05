@@ -178,7 +178,8 @@ namespace Meow.FaceRecon
         /// <param name="LineWidth">线粗细程度</param>
         /// <param name="ds">边框类型</param>
         /// <returns></returns>
-        public static void DrawRectangleInPicture(this Image i, MRECT m, Color RectColor, int LineWidth = 3, DashStyle ds = DashStyle.Solid)
+        public static void DrawRectangleInPicture(this Image i, MRECT m, Color RectColor, 
+            int LineWidth = 3, DashStyle ds = DashStyle.Solid)
         {
             Point p0 = new(m.left, m.top);
             Point p1 = new(m.right, m.bottom);
@@ -254,6 +255,35 @@ namespace Meow.FaceRecon
                 });
             }
             return fs;
+        }
+        /// <summary>
+        /// [Meow扩展]将Base64字符串转换成Image对象
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static Image Base64ToImage(this string base64String)
+        {
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+            MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            ms.Write(imageBytes, 0, imageBytes.Length);
+            Image image = Image.FromStream(ms, true);
+            return image;
+        }
+        /// <summary>
+        /// [Meow扩展]将Image对象转换为Base64
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static string ImgToBase64(this Image i)
+        {
+            Bitmap bmp = new(i);
+            MemoryStream ms = new();
+            bmp.Save(ms, ImageFormat.Jpeg);
+            byte[] arr = new byte[ms.Length];
+            ms.Position = 0;
+            ms.Read(arr, 0, (int)ms.Length);
+            ms.Close();
+            return Convert.ToBase64String(arr);
         }
     }
 }

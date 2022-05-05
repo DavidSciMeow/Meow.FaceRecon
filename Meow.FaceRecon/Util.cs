@@ -292,7 +292,7 @@ namespace Meow.FaceRecon
         public static ASVLOFFSCREEN GetBitMapPack(this Image ix)
         {
             var w_ = 0;
-            for (int j = ix.Width; j < w_ + 5; j++) 
+            for (int j = ix.Width; j < ix.Width + 10; j++) 
             {
                 if (j % 4 == 0)
                 {

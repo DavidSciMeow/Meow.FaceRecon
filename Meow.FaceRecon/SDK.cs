@@ -19,6 +19,7 @@ namespace Meow.FaceRecon
         /// Linux版本使用的Key(调用SO文件时)
         /// </summary>
         public string LinuxKey { get; private set; }
+        string Key { get; set; }
         /// <summary>
         /// 检测模式
         /// </summary>
@@ -54,37 +55,29 @@ namespace Meow.FaceRecon
             Appid = appid;
             WinKey = winKey;
             LinuxKey = linuxKey;
-            this.DetMode = dm;
-            this.OrientPriority = op;
-            this.Scale = nScale;
-            this.MaxFaceNumber = nMaxFaceNum;
-            $"EnginePool Init Phase : [OK] 已经实例化引擎管理池".ToLog();
-        }
-        /// <summary>
-        /// *私有,判定系统类型
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        string DetOS()
-        {
-            OperatingSystem osi = Environment.OSVersion;
-            PlatformID plid = osi.Platform;
-            if(plid == PlatformID.Unix)
+            DetMode = dm;
+            OrientPriority = op;
+            Scale = nScale;
+            MaxFaceNumber = nMaxFaceNum;
+            PlatformID plid = Environment.OSVersion.Platform;
+            if (plid == PlatformID.Unix)
             {
                 AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true); //设置linux模式(.net6)
-                return LinuxKey;
+                $"EnginePool Init Phase : [ETIL] SystemTypeIsLinux".ToLog();
+                Key = LinuxKey;
             }
-            else if(plid == PlatformID.Win32NT)
+            else if (plid == PlatformID.Win32NT)
             {
-                return WinKey;
+                $"EnginePool Init Phase : [ETIW] SystemTypeIsWindows".ToLog();
+                Key = WinKey;
             }
             else
             {
                 $"EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持".ToLog();
                 throw new Exception("EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持");
             }
+            $"EnginePool Init Phase : [OK] 已经实例化引擎管理池".ToLog();
         }
-
         /// <summary>
         /// 获取多个人脸信息
         /// </summary>
@@ -94,7 +87,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_MFA] 正在检测多人脸信息".ToLog();
-                using var e = new SDK.MultiFaceEngine(Appid, DetOS());
+                using var e = new SDK.MultiFaceEngine(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_MFA] 多人脸信息检测完成".ToLog();
                 return k;
@@ -108,7 +101,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_AGE] 正在检测年龄信息".ToLog();
-                using var e = new SDK.AgeFaceProcess(Appid, DetOS());
+                using var e = new SDK.AgeFaceProcess(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_AGE] 年龄信息检测完成".ToLog();
                 return k;
@@ -122,7 +115,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_GDR] 正在检测性别信息".ToLog();
-                using var e = new SDK.GenderFaceProcess(Appid, DetOS());
+                using var e = new SDK.GenderFaceProcess(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_GDR] 性别信息检测完成".ToLog();
                 return k;
@@ -136,7 +129,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_FDA] 正在检测人脸朝向信息".ToLog();
-                using var e = new SDK.AngleFaceProcess(Appid, DetOS());
+                using var e = new SDK.AngleFaceProcess(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_FDA] 人脸朝向信息检测完成".ToLog();
                 return k;
@@ -150,7 +143,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_LIF] 正在检测人脸真实程度信息".ToLog();
-                using var e = new SDK.LivenessFaceProcess(Appid, DetOS());
+                using var e = new SDK.LivenessFaceProcess(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_LIF] 人脸真实程度信息检测完成".ToLog();
                 return k;
@@ -164,7 +157,7 @@ namespace Meow.FaceRecon
             => Task.Factory.StartNew(() =>
             {
                 $"EnginePool Task Phase : [OT_ALL] 正在检测所有人脸信息".ToLog();
-                using var e = new SDK.FullFaceProcess(Appid, DetOS());
+                using var e = new SDK.FullFaceProcess(Appid, Key);
                 var k = e.Detect(i);
                 $"EnginePool Task Phase : [OF_ALL] 所有人脸信息检测完成".ToLog();
                 return k;

@@ -17,12 +17,15 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
+      working-directory: ./Meow.FaceRecon/
     - name: Build
       run: dotnet build --no-restore
+      working-directory: ./Meow.FaceRecon/
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon/
     - name: Publish
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
-       PROJECT_FILE_PATH: Meow.FaceRecon.publish.sln
+       PROJECT_FILE_PATH: ./Meow.FaceRecon/Meow.FaceRecon.csproj
        NUGET_KEY: ${{secrets.NUGET_API_KEY}}

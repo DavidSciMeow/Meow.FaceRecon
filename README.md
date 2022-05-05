@@ -1,61 +1,63 @@
 # Meow.FaceRecon
+
+[![CI](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml/badge.svg)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml)
 ```
-SDKÈÔÔÚ±àĞ´ÖĞ,Ã»ÓĞ·¢²¼Nuget.
-»ù´¡µÄÀàºÍDll/soµ÷ÓÃÒÑ¾­Ğ´Ã÷, ×¢ÊÍÍêÕû
-Äú¿ÉÒÔ×Ô¼ºµ÷ÓÃ»òÕß×Ô¼ºÀ©Õ¹»ùÀà
+SDKä»åœ¨ç¼–å†™ä¸­,æ²¡æœ‰å‘å¸ƒNuget.
+åŸºç¡€çš„ç±»å’ŒDll/soè°ƒç”¨å·²ç»å†™æ˜, æ³¨é‡Šå®Œæ•´
+æ‚¨å¯ä»¥è‡ªå·±è°ƒç”¨æˆ–è€…è‡ªå·±æ‰©å±•åŸºç±»
 ```
 
-# 0. Ä¿ Â¼
-1. [ÉêÇëºçÈíÈí¼ş¿ª·¢ AppId/SDKKey](#1)
+# 0. ç›® å½•
+1. [ç”³è¯·è™¹è½¯è½¯ä»¶å¼€å‘ AppId/SDKKey](#1)
 1. [Todo And Complete](#2)
-1. [»ùÀà¼òÒ×Ê¹ÓÃ·½·¨](#3)
-    1. [µ¼ÈëÍ¼Æ¬](#30)
-    1. [ÈËÁ³(¶à)±ê×¢Î»ÖÃ](#31)
-    1. [Ãæ²¿³¯Ïò](#32)
-    1. [Í¼Æ¬ÊÇ·ñÕæÊµ (½öÖ§³Öµ¥ÈËÁ³)](#33)
-    1. [ÄêÁäºÍĞÔ±ğ](#34)
-    1. [ÍêÈ«¼ì²é (Ê¹ÓÃÔ­Ê¼Êı×é)](#35)
-    1. [ÍêÈ«¼ì²é (Ê¹ÓÃ×ª»»ÈËÁ³ÁĞ±í)](#36)
-1. [½¨ÒéµÄÒıÇæ³ØÊ¹ÓÃ·½·¨](#4)
-1. ¾²Ì¬À©Õ¹Àà·½·¨ (Ê©¹¤ÖĞ)
-1. Ê¶±ğË³ĞòºÍÈí¼ş¹¤×÷Ô­Àí (Ê©¹¤ÖĞ)
+1. [åŸºç±»ç®€æ˜“ä½¿ç”¨æ–¹æ³•](#3)
+    1. [å¯¼å…¥å›¾ç‰‡](#30)
+    1. [äººè„¸(å¤š)æ ‡æ³¨ä½ç½®](#31)
+    1. [é¢éƒ¨æœå‘](#32)
+    1. [å›¾ç‰‡æ˜¯å¦çœŸå® (ä»…æ”¯æŒå•äººè„¸)](#33)
+    1. [å¹´é¾„å’Œæ€§åˆ«](#34)
+    1. [å®Œå…¨æ£€æŸ¥ (ä½¿ç”¨åŸå§‹æ•°ç»„)](#35)
+    1. [å®Œå…¨æ£€æŸ¥ (ä½¿ç”¨è½¬æ¢äººè„¸åˆ—è¡¨)](#36)
+1. [å»ºè®®çš„å¼•æ“æ± ä½¿ç”¨æ–¹æ³•](#4)
+1. é™æ€æ‰©å±•ç±»æ–¹æ³• (æ–½å·¥ä¸­)
+1. è¯†åˆ«é¡ºåºå’Œè½¯ä»¶å·¥ä½œåŸç† (æ–½å·¥ä¸­)
 
-## 1. ÉêÇëºçÈíÈí¼ş¿ª·¢AppKey(id)/SDKKey<a name="1"></a>
+## 1. ç”³è¯·è™¹è½¯è½¯ä»¶å¼€å‘AppKey(id)/SDKKey<a name="1"></a>
 -------
-µã»÷Á´½Ó [ÕâÀï](https://ai.arcsoft.com.cn/ucenter/resource/build/index.html#/login)  
-µÇÂ½ºó´´½¨Ó¦ÓÃ -> ³­È¡AppID ºÍ SDK_Key
+ç‚¹å‡»é“¾æ¥ [è¿™é‡Œ](https://ai.arcsoft.com.cn/ucenter/resource/build/index.html#/login)  
+ç™»é™†ååˆ›å»ºåº”ç”¨ -> æŠ„å–AppID å’Œ SDK_Key
 
-Çë½«ÄúÏÂÔØµÄ¿âÎÄ¼ş°´ÕÕ²Ù×÷ÏµÍ³Àà±ğµ÷ÓÃ·ÅÖÃÓÚÎÄ¼şÄ¿Â¼ÏÂ,  
-ÎÒÃÇ½¨Òé·ÅÖÃÔÚÏîÄ¿ÏÂ·½±ã¸ü»»ºÍ¶ÁÈ¡,  
-Èç¹ûÄú´æÔÚ¶à¸öÏîÄ¿Í¬Ê±µ÷ÓÃ¿âÎÄ¼şµÄÇé¿ö,
-Äú¿ÉÒÔ½«¿âÎÄ¼şÖÃÓÚ»·¾³±äÁ¿Î»ÖÃ»òÕß  
+è¯·å°†æ‚¨ä¸‹è½½çš„åº“æ–‡ä»¶æŒ‰ç…§æ“ä½œç³»ç»Ÿç±»åˆ«è°ƒç”¨æ”¾ç½®äºæ–‡ä»¶ç›®å½•ä¸‹,  
+æˆ‘ä»¬å»ºè®®æ”¾ç½®åœ¨é¡¹ç›®ä¸‹æ–¹ä¾¿æ›´æ¢å’Œè¯»å–,  
+å¦‚æœæ‚¨å­˜åœ¨å¤šä¸ªé¡¹ç›®åŒæ—¶è°ƒç”¨åº“æ–‡ä»¶çš„æƒ…å†µ,
+æ‚¨å¯ä»¥å°†åº“æ–‡ä»¶ç½®äºç¯å¢ƒå˜é‡ä½ç½®æˆ–è€…  
 `System32` `systemWoW64` (windows)  
 `/lib` `/usr/lib` (linux)
 
-**`Çë×¢Òâ`**,`APPID`ºÍ`SDKKEY`¾ùÎª´¿×Ö·û´®,¶ø²¢·Ç`APP_ID:xxxxxxx`ÄúÖ»ĞèÌîĞ´Ã°ºÅºóÃæµÄ×Ö·û´®`xxxxxxx`¼´¿É  
-Ïß³Ì»áÔÚµ÷ÓÃÊ±³öÏÖException,²¶×½ºóÄú¿ÉÒÔ¿´µ½´íÎóÂëÀàËÆ `xx1xx Phase : [xx2xx] xx3xx`  
-`xx1xx` ÊÇ ¼ì²âµÄ½×¶Î  
-`xx2xx` ÊÇ ´íÎóÂëµÄÓ¢ÎÄ  
-`xx3xx` ÊÇ ´íÎóÂëµÄÖĞÎÄÒâÒå  
+**`è¯·æ³¨æ„`**,`APPID`å’Œ`SDKKEY`å‡ä¸ºçº¯å­—ç¬¦ä¸²,è€Œå¹¶é`APP_ID:xxxxxxx`æ‚¨åªéœ€å¡«å†™å†’å·åé¢çš„å­—ç¬¦ä¸²`xxxxxxx`å³å¯  
+çº¿ç¨‹ä¼šåœ¨è°ƒç”¨æ—¶å‡ºç°Exception,æ•æ‰åæ‚¨å¯ä»¥çœ‹åˆ°é”™è¯¯ç ç±»ä¼¼ `xx1xx Phase : [xx2xx] xx3xx`  
+`xx1xx` æ˜¯ æ£€æµ‹çš„é˜¶æ®µ  
+`xx2xx` æ˜¯ é”™è¯¯ç çš„è‹±æ–‡  
+`xx3xx` æ˜¯ é”™è¯¯ç çš„ä¸­æ–‡æ„ä¹‰  
 
 ## 2. TODO and Complete<a name="2"></a>
 TODO**                                      | **isComplete** |**UpdateAt**
 ------------------------------------------------|----------------|----------------
-DllÍâ²¿µ÷ÓÃÒıÓÃ                                  | ¡Ì | 20220421       
-Dll»ù´¡ÒıÇæ¹ÜÀí                                  | ¡Ì | 20220421       
-ASFDetectMultiFace                             | ¡Ì | 20220422       
+Dllå¤–éƒ¨è°ƒç”¨å¼•ç”¨                                  | âˆš | 20220421       
+DllåŸºç¡€å¼•æ“ç®¡ç†                                  | âˆš | 20220421       
+ASFDetectMultiFace                             | âˆš | 20220422       
 ASFProcessEx_IR                                | pending | /
 ASFProcess_IR                                  | pending | /
 ASFFaceFeatureExtract                          | pending | /
 ASFFaceFeatureExtractEx                        | pending | /
-ASFGetAge                                      | ¡Ì | 20220423               
-ASFGetGender                                   | ¡Ì | 20220424               
-ASFGetFace3DAngle                              | ¡Ì | 20220425        
-ASFGetLivenessScore                            | ¡Ì | 20220425
+ASFGetAge                                      | âˆš | 20220423               
+ASFGetGender                                   | âˆš | 20220424               
+ASFGetFace3DAngle                              | âˆš | 20220425        
+ASFGetLivenessScore                            | âˆš | 20220425
 ASFGetLivenessScore_IR                         | pending | /
 
-## 3. (»ùÀà)¼òÒ×Ê¹ÓÃ·½·¨<a name="3"></a>
-### µ¼ÈëÍ¼Æ¬»òÕß¶ÁÈ¡Í¼Æ¬(Image¶ÔÏó)<a name="30"></a>
+## 3. (åŸºç±»)ç®€æ˜“ä½¿ç”¨æ–¹æ³•<a name="3"></a>
+### å¯¼å…¥å›¾ç‰‡æˆ–è€…è¯»å–å›¾ç‰‡(Imageå¯¹è±¡)<a name="30"></a>
 ```csharp
 using Meow.FaceRecon;
 using System.Drawing;
@@ -65,7 +67,7 @@ Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;
 string fp = "D:/1234.jpg";
 using var i = Image.FromFile(fp);
 ```
-### 3.1. ÈËÁ³Î»ÖÃ±ê×¢<a name="31"></a>
+### 3.1. äººè„¸ä½ç½®æ ‡æ³¨<a name="31"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.MultiFaceEngine(pwd.appid, pwd.sdkwin);
 var b = e.Detect(i);
@@ -76,7 +78,7 @@ foreach (var ri in b.faceRect)
 var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
-### 3.2. Ãæ²¿³¯Ïò<a name="32"></a>
+### 3.2. é¢éƒ¨æœå‘<a name="32"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.AngleFaceProcess(pwd.appid, pwd.sdkwin);
 var (a,b) = e.Detect(i);
@@ -90,7 +92,7 @@ var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.3. Í¼Æ¬ÊÇ·ñÕæÊµ(½öÖ§³Öµ¥ÈËÁ³)<a name="33"></a>
+### 3.3. å›¾ç‰‡æ˜¯å¦çœŸå®(ä»…æ”¯æŒå•äººè„¸)<a name="33"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.LivenessFaceProcess(pwd.appid, pwd.sdkwin);
 var (a,b) = e.Detect(i);
@@ -104,7 +106,7 @@ var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.4. ÄêÁäºÍĞÔ±ğ<a name="34"></a>
+### 3.4. å¹´é¾„å’Œæ€§åˆ«<a name="34"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.AgeFaceProcess(pwd.appid, pwd.sdkwin);
 using var e2 = new Meow.FaceRecon.SDK.GenderFaceProcess(pwd.appid, pwd.sdkwin);
@@ -119,7 +121,7 @@ var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.5. ÍêÈ«¼ì²é(Ê¹ÓÃÔ­Ê¼Êı×é)<a name="35"></a>
+### 3.5. å®Œå…¨æ£€æŸ¥(ä½¿ç”¨åŸå§‹æ•°ç»„)<a name="35"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
 SDK_FaceGeneral a = e.Detect(i);
@@ -133,7 +135,7 @@ var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-### 3.6. ÍêÈ«¼ì²é(Ê¹ÓÃ×ª»»ÈËÁ³ÁĞ±í[Util¾²Ì¬À©Õ¹])<a name="36"></a>
+### 3.6. å®Œå…¨æ£€æŸ¥(ä½¿ç”¨è½¬æ¢äººè„¸åˆ—è¡¨[Utilé™æ€æ‰©å±•])<a name="36"></a>
 ```csharp
 using var e = new Meow.FaceRecon.SDK.FullFaceProcess(pwd.appid, pwd.sdkwin);
 var a = e.Detect(i).ConvertIntoFaces();
@@ -147,9 +149,9 @@ var p = Path.GetFilename=(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
 
-## 4.½¨ÒéÊ¹ÓÃµÄÒıÇæ³Ø¼ì²â·½·¨<a name="4"></a>
+## 4.å»ºè®®ä½¿ç”¨çš„å¼•æ“æ± æ£€æµ‹æ–¹æ³•<a name="4"></a>
 ```csharp
-var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //Éú³ÉÒ»¸öÃæ²¿Ê¶±ğÒıÇæ¹ÜÀí³Ø
+var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //ç”Ÿæˆä¸€ä¸ªé¢éƒ¨è¯†åˆ«å¼•æ“ç®¡ç†æ± 
 (await ep.DetAllFaceAsync(i)).ConvertIntoFaces()
 .ForEach(ix =>{
     Console.WriteLine($"A:{ix.age}|G:{ix.gender}|POS:{ix.pitch}deg:{ix.yaw}deg:{ix.roll}deg");
@@ -158,28 +160,28 @@ var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //Éú³ÉÒ»¸öÃæ²¿Ê
 var p = Path.GetFileName(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
-### ÍêÕûĞ´·¨(*)
+### å®Œæ•´å†™æ³•(*)
 ```csharp
 using Meow.FaceRecon;
 using MeowFaceReconTest;
 using System.Drawing;
 
-Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;//ÈÕÖ¾ÀàĞÍ
+Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;//æ—¥å¿—ç±»å‹
 
-string fp = "D:/123.jpg";//ÎÄ¼şÄ¿Â¼
-using var i = Image.FromFile(fp);//¶ÁÈ¡Image
+string fp = "D:/123.jpg";//æ–‡ä»¶ç›®å½•
+using var i = Image.FromFile(fp);//è¯»å–Image
 
-var base64str = i.ImgToBase64(); //UtilÀ©Õ¹×ª»»Image/Base64 (Èç¹ûÄúÊÇ´ÓÍøÂç»ñÈ¡)
+var base64str = i.ImgToBase64(); //Utilæ‰©å±•è½¬æ¢Image/Base64 (å¦‚æœæ‚¨æ˜¯ä»ç½‘ç»œè·å–)
 
-var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //Éú³ÉÒ»¸öÃæ²¿Ê¶±ğÒıÇæ¹ÜÀí³Ø
-(await ep.DetAllFaceAsync(base64str.Base64ToImage())) //Base64×Ö·û´®×ª»»Image
+var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //ç”Ÿæˆä¸€ä¸ªé¢éƒ¨è¯†åˆ«å¼•æ“ç®¡ç†æ± 
+(await ep.DetAllFaceAsync(base64str.Base64ToImage())) //Base64å­—ç¬¦ä¸²è½¬æ¢Image
     .ConvertIntoFaces()
     .ForEach(ix =>
 {
     Console.WriteLine($"A:{ix.age}|G:{ix.gender}|POS:{ix.pitch}deg:{ix.yaw}deg:{ix.roll}deg");
     i.DrawRectangleInPicture(ix.faceRect, Color.Red);
 
-    Console.WriteLine(i.ImgToBase64()); // UtilÀ©Õ¹×ª»»Base64
+    Console.WriteLine(i.ImgToBase64()); // Utilæ‰©å±•è½¬æ¢Base64
 });
 
 var p = Path.GetFileName(fp).Split(".");

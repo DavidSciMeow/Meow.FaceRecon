@@ -19,7 +19,7 @@
     <PackageTags>FaceRecognition,FaceDetctor,Arcsoft</PackageTags>
     <NeutralLanguage>zh</NeutralLanguage>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>GPLv3</PackageLicenseExpression>
+    <PackageLicenseExpression></PackageLicenseExpression>
     <Description>Arcsoft FaceDetector V3 C# Warpper and Util</Description>
     <PackageProjectUrl>https://github.com/DavidSciMeow/Meow.FaceRecon</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>

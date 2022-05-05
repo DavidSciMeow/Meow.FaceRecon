@@ -190,27 +190,98 @@ namespace Meow.FaceRecon
             g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
         }
         /// <summary>
-        /// [Meow扩展]原图中画出框和字符
-        /// </summary>
-        /// <param name="i">原图</param>
-        /// <param name="s"></param>
-        /// <param name="m">得到的矩形位置</param>
-        /// <param name="Color">颜色</param>
-        /// <param name="fontsize">字号</param>
-        /// <param name="LineWidth">线粗细程度</param>
-        /// <param name="ds">边框类型</param>
-        public static void DrawRectangleWithString(this Image i, string s,
-             MRECT m, Color Color, int fontsize,
-            int LineWidth = 3, DashStyle ds = DashStyle.Solid)
+        /// [Meow扩展]添加文字
+        /// </summary> 
+        /// <param name="img">图片</param>
+        /// <param name="lt">左上角定位</param>
+        /// <param name="rb">右下角定位</param> 
+        /// <param name="text">文字内容</param>
+        /// <param name="Color">文字颜色</param> 
+        /// <param name="fontName">字体名称</param> 
+        /// <returns>添加文字后的Bitmap对象</returns> 
+        public static void DrawString(this Image img,
+            (float left, float top) lt,
+            (float right, float bottom) rb,
+            string text, Color Color, string fontName = "微软雅黑")
         {
-            Point p0 = new(m.left, m.top);
-            Point p1 = new(m.right, m.bottom);
-            using Graphics g = Graphics.FromImage(i);
-            Brush brush = new SolidBrush(Color);
-            Pen pen = new(brush, LineWidth);
-            pen.DashStyle = ds;
-            g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
-            g.DrawString(s, new Font(new FontFamily("微软雅黑"), fontsize), brush, p0.X, p0.Y);
+            using Graphics graph = Graphics.FromImage(img);
+            float x1 = lt.left;
+            float y1 = lt.top;
+            float x2 = rb.right;
+            float y2 = rb.bottom;
+            float fontWidth = x2 - x1;
+            float fontHeight = y2 - y1;
+            float fontSize = fontHeight;
+            Font font = new(fontName, fontSize, GraphicsUnit.Pixel);
+            SizeF sf = graph.MeasureString(text, font);
+            int times = 0;
+            if (sf.Width > fontWidth)
+            {
+                while (sf.Width > fontWidth)
+                {
+                    fontSize -= 0.1f;
+                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
+                    sf = graph.MeasureString(text, font); times++;
+                }
+            }
+            else if (sf.Width < fontWidth)
+            {
+                while (sf.Width < fontWidth)
+                {
+                    fontSize += 0.1f;
+                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
+                    sf = graph.MeasureString(text, font); times++;
+                }
+            }
+            x1 += (fontWidth - sf.Width) / 2;
+            y1 += (fontHeight - sf.Height) / 2;
+            graph.DrawString(text, font, new SolidBrush(Color), x1, y1);
+        }
+        /// <summary>
+        /// [Meow扩展]添加文字
+        /// </summary>
+        /// <param name="img">图片</param>
+        /// <param name="m">人脸框位置</param>
+        /// <param name="pct">文字占人脸框比例</param>
+        /// <param name="text">文字</param>
+        /// <param name="Color">文字颜色</param> 
+        /// <param name="fontName">字体名称</param>
+        /// <returns></returns>
+        public static void DrawString(this Image img,
+            MRECT m, string text, Color Color, float pct = .2f, string fontName = "微软雅黑")
+        {
+            using Graphics graph = Graphics.FromImage(img);
+            float x1 = m.left;
+            float y1 = m.top;
+            float x2 = m.right;
+            float y2 = m.top + (m.bottom-m.top) * pct;
+            float fontWidth = x2 - x1;
+            float fontHeight = y2 - y1;
+            float fontSize = fontHeight;
+            Font font = new(fontName, fontSize, GraphicsUnit.Pixel);
+            SizeF sf = graph.MeasureString(text, font);
+            int times = 0;
+            if (sf.Width > fontWidth)
+            {
+                while (sf.Width > fontWidth)
+                {
+                    fontSize -= 0.1f;
+                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
+                    sf = graph.MeasureString(text, font); times++;
+                }
+            }
+            else if (sf.Width < fontWidth)
+            {
+                while (sf.Width < fontWidth)
+                {
+                    fontSize += 0.1f;
+                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
+                    sf = graph.MeasureString(text, font); times++;
+                }
+            }
+            x1 += (fontWidth - sf.Width) / 2;
+            y1 += (fontHeight - sf.Height) / 2;
+            graph.DrawString(text, font, new SolidBrush(Color), x1, y1);
         }
         /// <summary>
         /// [Meow扩展]获取打包好的Image

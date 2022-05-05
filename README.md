@@ -1,6 +1,6 @@
 # Meow.FaceRecon
 
-[![CI](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml/badge.svg)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml)
+[![CI](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml)
 ```
 SDK仍在编写中,没有发布Nuget.
 基础的类和Dll/so调用已经写明, 注释完整

@@ -14,9 +14,8 @@ var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //生成一个�
     .ConvertIntoFaces()
     .ForEach(ix =>
 {
-    Console.WriteLine($"A:{ix.age}|G:{ix.gender}|POS:{ix.pitch}deg:{ix.yaw}deg:{ix.roll}deg");
     i.DrawRectangleInPicture(ix.faceRect, Color.Red);
-
+    i.DrawString(ix.faceRect, $"{(ix.gender==0?"男":(ix.gender==1?"女":"不确定"))},{ix.age}岁\n头部动作指数:俯仰{Math.Round(ix.pitch)}度:偏航{Math.Round(ix.yaw)}度:滚转{Math.Round(ix.roll)}度", Color.Red);
     Console.WriteLine(i.ImgToBase64()); // Util扩展转换Base64
 });
 

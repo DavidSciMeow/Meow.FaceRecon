@@ -3,11 +3,6 @@
 [![CI](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml)
 ![](https://img.shields.io/nuget/vpre/Electronicute.Meow.FaceRecon?label=NuGet%20Version)
 ![](https://img.shields.io/nuget/dt/Electronicute.Meow.FaceRecon?label=Nuget%20Download)
-```
-SDK仍在编写中,没有发布Nuget.
-基础的类和Dll/so调用已经写明, 注释完整
-您可以自己调用或者自己扩展基类
-```
 
 # 0. 目 录
 1. [申请虹软软件开发 AppId/SDKKey](#1)

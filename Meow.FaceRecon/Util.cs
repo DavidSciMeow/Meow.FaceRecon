@@ -289,9 +289,18 @@ namespace Meow.FaceRecon
         /// <param name="ix">Image</param>
         /// <param name="diffSize">放大倍数</param>
         /// <returns></returns>
-        public static ASVLOFFSCREEN GetBitMapPack(this Image ix, int diffSize = 1)
+        public static ASVLOFFSCREEN GetBitMapPack(this Image ix)
         {
-            using var b = new Bitmap(ix, new Size((ix.Width / 4 * 4 * diffSize), (ix.Height / 4 * 4 * diffSize)));
+            var w_ = 0;
+            for (int j = ix.Width; j < w_ + 5; j++) 
+            {
+                if (j % 4 == 0)
+                {
+                    w_ = j;
+                    break;
+                }
+            }
+            using var b = new Bitmap(ix, new Size(w_, ix.Height));
             var i = b.Read(out int w, out int h, out int p);
             IntPtr ip = Marshal.AllocHGlobal(i.Length);
             Marshal.Copy(i, 0, ip, i.Length);

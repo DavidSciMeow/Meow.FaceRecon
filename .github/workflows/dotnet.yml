@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ PublishPackageBranch ]
+  pull_request:
+    branches: [ PublishPackageBranch ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with:
+       PROJECT_FILE_PATH: Meow.FaceRecon.publish.csproj   #确定发布项目名
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}  #使用专用key

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace Meow.FaceRecon.NativeSDK
@@ -11,14 +10,13 @@ namespace Meow.FaceRecon.NativeSDK
     {
         const CharSet cs = CharSet.Auto;
         const string lib = "libarcsoft_face_engine";
-        const CallingConvention cc = default;
 
         /// <summary>
         /// 获取激活文件信息接口
         /// </summary>
         /// <param name="activeFileInfo">[out] 激活文件信息</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetActiveFileInfo), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetActiveFileInfo), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetActiveFileInfo(ref ASF_ActiveFileInfo activeFileInfo);
         /// <summary>
         /// 在线激活接口
@@ -27,7 +25,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="SDKKey">[in]  SDKKEY</param>
         /// <returns></returns>
         [Obsolete("使用ASFActivation完成")]
-        [DllImport(lib, EntryPoint = nameof(ASFOnlineActivation), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFOnlineActivation), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFOnlineActivation(string AppId, string SDKKey);
         /// <summary>
         /// 在线激活接口，该接口与ASFOnlineActivation接口功能一致，推荐使用该接口
@@ -35,7 +33,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="AppId">[in]  APPID</param>
         /// <param name="SDKKey">[in]  SDKKEY</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFActivation), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFActivation), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFActivation(string AppId, string SDKKey);
         /// <summary>
         /// 初始化引擎
@@ -62,7 +60,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// [out] 初始化返回的引擎handle
         /// </param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFInitEngine), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFInitEngine), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFInitEngine(ASF_DetectMode detectMode, ASF_OrientPriority detectFaceOrientPriority, int detectFaceScaleVal, int detectFaceMaxNum, int combinedMask, out IntPtr hEngine);
         /// <summary>
         /// VIDEO模式:人脸追踪 IMAGE模式:人脸检测
@@ -75,8 +73,8 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[out] 检测到的人脸信息 </param>
         /// <param name="detectModel">[in] 预留字段，当前版本使用默认参数即可</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFDetectFaces), CallingConvention = cc)]
-        public static extern int ASFDetectFaces(IntPtr hEngine, int width, int height, int format, IntPtr imgData, out ASF_MultiFaceInfo detectedFaces, ASF_DetectModel detectModel = ASF_DetectModel.ASF_DETECT_MODEL_RGB);
+        [DllImport(lib, EntryPoint = nameof(ASFDetectFaces), CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ASFDetectFaces(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, ASF_DetectModel detectModel = ASF_DetectModel.ASF_DETECT_MODEL_RGB);
         /// <summary>
         /// VIDEO模式:人脸追踪 IMAGE模式:人脸检测 
         /// <para>图像数据以结构体形式传入，对采用更高字节对齐方式的图像兼容性更好</para>
@@ -86,7 +84,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[out] 检测到的人脸信息</param>
         /// <param name="detectModel">[in]	预留字段，当前版本使用默认参数即可</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFDetectFacesEx), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFDetectFacesEx), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFDetectFacesEx(IntPtr hEngine, ASVLOFFSCREEN imgData, out ASF_MultiFaceInfo detectedFaces, ASF_DetectModel detectModel = ASF_DetectModel.ASF_DETECT_MODEL_RGB);
         /// <summary>
         /// 设置引擎阈值
@@ -96,7 +94,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="threshold">[in] 活体置信度</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFSetLivenessParam), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFSetLivenessParam), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFSetLivenessParam(IntPtr hEngine, ref ASF_LivenessThreshold threshold);
         /// <summary>
         /// 年龄/性别/人脸3D角度（该接口仅支持RGB图像）
@@ -111,8 +109,8 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[in] 人脸信息，用户根据待检测的功能选择需要使用的人脸。</param>
         /// <param name="combinedMask">[in] 只支持初始化时候指定需要检测的功能，在process时进一步在这个已经指定的功能集中继续筛选</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFProcess), CallingConvention = cc)]
-        public static extern int ASFProcess(IntPtr hEngine, int width, int height, int format, IntPtr imgData,ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        [DllImport(lib, EntryPoint = nameof(ASFProcess), CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ASFProcess(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 年龄/性别/人脸3D角度（该接口仅支持RGB图像）
         /// <para>最多支持4张人脸信息检测，超过部分返回未知</para>
@@ -124,8 +122,8 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[in] 人脸信息，用户根据待检测的功能选择需要使用的人脸。</param>
         /// <param name="combinedMask">[in] 只支持初始化时候指定需要检测的功能，在process时进一步在这个已经指定的功能集中继续筛选</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFProcessEx), CallingConvention = cc)]
-        public static extern int ASFProcessEx(IntPtr hEngine, ASVLOFFSCREEN imgData,ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        [DllImport(lib, EntryPoint = nameof(ASFProcessEx), CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ASFProcessEx(IntPtr hEngine, ASVLOFFSCREEN imgData, ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 该接口目前仅支持单人脸IR活体检测（不支持年龄、性别、3D角度的检测）
         /// <para>默认取第一张人脸</para>
@@ -138,8 +136,8 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[in] 人脸信息，用户根据待检测的功能选择需要使用的人脸。</param>
         /// <param name="combinedMask">[in] 目前只支持传入ASF_IR_LIVENESS属性的传入，且初始化接口需要传入 </param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFProcess_IR), CallingConvention = cc)]
-        public static extern int ASFProcess_IR(IntPtr hEngine, int width, int height, int format, IntPtr imgData, out ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        [DllImport(lib, EntryPoint = nameof(ASFProcess_IR), CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ASFProcess_IR(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 该接口目前仅支持单人脸IR活体检测（不支持年龄、性别、3D角度的检测）,
         /// <para>默认取第一张人脸</para>
@@ -150,20 +148,20 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectedFaces">[in] 人脸信息，用户根据待检测的功能选择需要使用的人脸。</param>
         /// <param name="combinedMask">[in] 目前只支持传入ASF_IR_LIVENESS属性的传入，且初始化接口需要传入</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFProcessEx_IR), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFProcessEx_IR), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFProcessEx_IR(IntPtr hEngine, ASVLOFFSCREEN imgData, ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 销毁引擎
         /// </summary>
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFUninitEngine), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFUninitEngine), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFUninitEngine(IntPtr hEngine);
         /// <summary>
         /// 获取版本信息
         /// </summary>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetVersion), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetVersion), CallingConvention = CallingConvention.Cdecl)]
         public static extern ASF_VERSION ASFGetVersion();
         /// <summary>
         /// 单人脸特征提取
@@ -176,7 +174,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="faceInfo">[in] 单张人脸位置和角度信息</param>
         /// <param name="feature">[out] 人脸特征</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureExtract), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureExtract), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFFaceFeatureExtract(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_SingleFaceInfo faceInfo, ref ASF_FaceFeature feature);
         /// <summary>
         /// 单人脸特征提取
@@ -188,7 +186,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="faceInfo">[in] 单张人脸位置和角度信息</param>
         /// <param name="feature">[out] 人脸特征</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureExtractEx), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureExtractEx), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFFaceFeatureExtractEx(IntPtr hEngine, ASVLOFFSCREEN imgData, ref ASF_SingleFaceInfo faceInfo, out ASF_FaceFeature feature);
         /// <summary>
         /// 人脸特征比对，
@@ -204,7 +202,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <para>ASF_ID_PHOTO：用于证件照或证件照和生活照之间的特征比对</para>
         /// </param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureCompare), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFFaceFeatureCompare), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFFaceFeatureCompare(IntPtr hEngine, ref ASF_FaceFeature feature1, ref ASF_FaceFeature feature2, ref float confidenceLevel, ASF_CompareModel compareModel);
         /// <summary>
         /// 获取年龄信息
@@ -212,7 +210,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="ageInfo">[out] 检测到的年龄信息</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetAge), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetAge), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetAge(IntPtr hEngine, out ASF_AgeInfo ageInfo);
         /// <summary>
         /// 获取性别信息
@@ -220,7 +218,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="genderInfo">[out] 检测到的性别信息</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetGender), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetGender), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetGender(IntPtr hEngine, out ASF_GenderInfo genderInfo);
         /// <summary>
         /// 获取3D角度信息
@@ -228,7 +226,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="p3DAngleInfo">[out] 检测到脸部3D 角度信息</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetFace3DAngle), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetFace3DAngle), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetFace3DAngle(IntPtr hEngine, out ASF_Face3DAngle p3DAngleInfo);
         /// <summary>
         /// 获取RGB活体结果
@@ -236,7 +234,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="livenessInfo">[out] 检测RGB活体结果</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetLivenessScore), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetLivenessScore), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetLivenessScore(IntPtr hEngine, out ASF_LivenessInfo livenessInfo);
         /// <summary>
         /// 获取IR活体结果
@@ -244,7 +242,14 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="irLivenessInfo">[out] 检测到IR活体结果</param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFGetLivenessScore_IR), CallingConvention = cc)]
+        [DllImport(lib, EntryPoint = nameof(ASFGetLivenessScore_IR), CallingConvention = CallingConvention.Cdecl)]
         public static extern int ASFGetLivenessScore_IR(IntPtr hEngine, ref ASF_LivenessInfo irLivenessInfo);
+        /// <summary>
+        /// 获取ASVL版本
+        /// </summary>
+        /// <returns></returns>
+        [Obsolete("不可用,无法找到入口点")]
+        [DllImport(lib, EntryPoint = nameof(ASVL_GetVersion), CallingConvention = CallingConvention.Cdecl)]
+        public static extern ASVL_VERSION ASVL_GetVersion();
     }
 }

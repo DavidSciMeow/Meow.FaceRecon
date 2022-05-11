@@ -1,12 +1,8 @@
-﻿/*
-using Meow.FaceRecon.NativeSDK;
+﻿using Meow.FaceRecon.NativeSDK;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-/// <summary>
-/// 旧引擎实现
-/// </summary>
-namespace Meow.FaceRecon.SDK.Old
+namespace Meow.FaceRecon.SDK
 {
     /// <summary>
     /// 引擎定义
@@ -64,10 +60,10 @@ namespace Meow.FaceRecon.SDK.Old
         /// <param name="nScale">最小人脸尺寸</param>
         /// <param name="nMaxFaceNum">最大人脸个数</param>
         /// <param name="mode">引擎检测模式</param>
-        public Engine(string appId, string sdkKey, 
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE, 
+        public Engine(string appId, string sdkKey,
+            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
             ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10, 
+            int nScale = 32, int nMaxFaceNum = 10,
             Mask mode = Mask.ASF_ALL)
         {
             AppId = appId;
@@ -77,7 +73,7 @@ namespace Meow.FaceRecon.SDK.Old
             Scale = nScale;
             MaxFaceNum = nMaxFaceNum;
             DetectedMask = mode;
-            if (!File.Exists("./ArcFace64.dat"))
+            if (APIResult.MOK != (APIResult)NativeFunction.ASFInitEngine(dm, op, nScale, nMaxFaceNum, (int)mode, out detectEngine))
             {
                 var s = (APIResult)NativeFunction.ASFActivation(appId, sdkKey);
                 if (s != APIResult.MOK)
@@ -92,7 +88,7 @@ namespace Meow.FaceRecon.SDK.Old
                         throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
                     }
                 }
-                else if (s == APIResult.MOK)
+                else if(s == APIResult.MOK)
                 {
                     $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
                     IsActivate = true;
@@ -102,17 +98,9 @@ namespace Meow.FaceRecon.SDK.Old
                     throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
                 }
             }
-            else
-            {
-                IsActivate = true;
-            }
-            var s2 = (APIResult)NativeFunction.ASFInitEngine(dm, op, nScale, nMaxFaceNum, (int)mode, out detectEngine);
-            if (s2 != APIResult.MOK)
-            {
-                $"Init Phase : [{s2}] {s2.ApiResultToChinese()}".ToLog();
-            }
         }
 
+        /*Dispose Interface*/
         /// <summary>
         /// 销毁
         /// </summary>
@@ -164,6 +152,7 @@ namespace Meow.FaceRecon.SDK.Old
             base(appId, sdkKey, dm, op, nScale, nMaxFaceNum, Mask.ASF_ALL)
         {
         }
+
         /// <summary>
         /// 使用引擎检测本图片(底)
         /// </summary>
@@ -201,7 +190,9 @@ namespace Meow.FaceRecon.SDK.Old
             }
             return result;
         }
+
     }
+
     /// <summary>
     /// 一个年龄检测工具
     /// </summary>
@@ -224,6 +215,12 @@ namespace Meow.FaceRecon.SDK.Old
             base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
         {
         }
+        /// <summary>
+        /// 检测本图片年龄
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         (ASF_MultiFaceInfo,ASF_AgeInfo) DetectAgeBase(Image i)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
@@ -244,7 +241,7 @@ namespace Meow.FaceRecon.SDK.Old
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo mfi, Model.SDK_AgeInfo dfi) Detect(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_AgeInfo) Detect(Image i)
         {
             var (mfi, infox) = DetectAgeBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -287,6 +284,13 @@ namespace Meow.FaceRecon.SDK.Old
             base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
         {
         }
+
+        /// <summary>
+        /// 检测本图片性别
+        /// </summary>
+        /// <param name="i">图像对象</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         (ASF_MultiFaceInfo, ASF_GenderInfo) DetectGenderBase(Image i)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
@@ -307,7 +311,7 @@ namespace Meow.FaceRecon.SDK.Old
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo mfi, Model.SDK_GenderInfo dfi) Detect(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_GenderInfo) Detect(Image i)
         {
             var (mfi, infox) = DetectGenderBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -350,6 +354,7 @@ namespace Meow.FaceRecon.SDK.Old
             base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
         {
         }
+
         /// <summary>
         /// 检测本图片面部朝向
         /// </summary>
@@ -376,7 +381,7 @@ namespace Meow.FaceRecon.SDK.Old
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo mfi, Model.SDK_Face3DAngle dfi) Detect(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_Face3DAngle) Detect(Image i)
         {
             var (mfi, infox) = Detect3DAngleBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -452,7 +457,7 @@ namespace Meow.FaceRecon.SDK.Old
         /// </summary>
         /// <param name="i">图像对象</param>
         /// <returns></returns>
-        public new (Model.SDK_MultiFaceInfo mfi, Model.SDK_LivenessInfo dfi) Detect(Image i)
+        public new (Model.SDK_MultiFaceInfo, Model.SDK_LivenessInfo) Detect(Image i)
         {
             var (mfi, infox) = DetectLivenessBase(i);
             Model.SDK_MultiFaceInfo resultmfi = new();
@@ -561,4 +566,3 @@ namespace Meow.FaceRecon.SDK.Old
         }
     }
 }
-*/

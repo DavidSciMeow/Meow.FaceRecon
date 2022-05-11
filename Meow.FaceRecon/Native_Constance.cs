@@ -40,6 +40,10 @@ namespace Meow.FaceRecon.NativeSDK
         /// IR活体
         /// </summary>
         ASF_IR_LIVENESS = 1024,
+        /// <summary>
+        /// 全部
+        /// </summary>
+        ASF_ALL = ASF_NONE | ASF_FACE_DETECT | ASF_FACERECOGNITION | ASF_AGE | ASF_GENDER | ASF_FACE3DANGLE | ASF_LIVENESS | ASF_IR_LIVENESS,
     }
     /// <summary>
     /// 检测模式
@@ -426,11 +430,10 @@ namespace Meow.FaceRecon.NativeSDK
         ASVL_PAF_RAW10_GRAY_16B = 3713,
     }
 
-    //[StructLayout(LayoutKind.Sequential)]
-
     /// <summary>
     /// 识别矩形
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct MRECT
     {
         /// <summary>
@@ -453,6 +456,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 识别点
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct MPOINT
     {
         /// <summary>
@@ -467,6 +471,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 版本信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_VERSION
     {
         /// <summary>
@@ -488,6 +493,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 单人脸信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_SingleFaceInfo
     {
         /// <summary>
@@ -502,6 +508,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 多人脸信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_MultiFaceInfo
     {
         /// <summary>
@@ -524,6 +531,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 激活文件信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_ActiveFileInfo
     {
         /// <summary>
@@ -570,6 +578,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 活体阈值设置
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_LivenessThreshold
     {
         /// <summary>
@@ -613,6 +622,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 定义SDK版本信息(模板)
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASVL_VERSION
     {
         /// <summary>
@@ -650,6 +660,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 人脸特征
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_FaceFeature
     {
         /// <summary>
@@ -665,6 +676,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 年龄
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_AgeInfo
     {
         /// <summary>
@@ -680,6 +692,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 性别
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_GenderInfo
     {
         /// <summary>
@@ -695,6 +708,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 获取3D角度信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_Face3DAngle
     {
         /// <summary>
@@ -722,6 +736,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 活体信息
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASF_LivenessInfo
     {
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Meow.FaceRecon.NativeSDK;
+using SkiaSharp;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -141,34 +142,38 @@ namespace Meow.FaceRecon
             };
         }
         /// <summary>
-        /// [Meow扩展]读取Bitmap到Byte[]
+        /// 转换成人脸总体列表模式
         /// </summary>
-        /// <param name="image">原图</param>
-        /// <param name="width">宽</param>
-        /// <param name="height">高</param>
-        /// <param name="pitch">位</param>
+        /// <param name="s">SDK_FaceGeneral类</param>
         /// <returns></returns>
-        public static byte[] Read(this Bitmap image, out int width, out int height, out int pitch)
+        public static List<SDK.Model.SDK_Faces> ConvertIntoFaces(this SDK.Model.SDK_FaceGeneral s)
         {
-            BitmapData data = image.LockBits(new Rectangle(0, 0, image.Width, image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            IntPtr ptr = data.Scan0;
-            int soureBitArrayLength = data.Height * Math.Abs(data.Stride);
-            byte[] sourceBitArray = new byte[soureBitArrayLength];
-            Marshal.Copy(ptr, sourceBitArray, 0, soureBitArrayLength); 
-            width = data.Width;
-            height = data.Height;
-            pitch = Math.Abs(data.Stride);
-            int line = width * 3;
-            int bgr_len = line * height;
-            byte[] destBitArray = new byte[bgr_len];
-            for (int i = 0; i < height; ++i)
+            List<SDK.Model.SDK_Faces> fs = new();
+            for (int i = 0; i < s.faceNum; i++)
             {
-                Array.Copy(sourceBitArray, i * pitch, destBitArray, i * line, line);
+                fs.Add(new()
+                {
+                    age = s.ageArray[i],
+                    faceOrient = s.faceOrient[i],
+                    status = s.status[i],
+                    faceRect = s.faceRect[i],
+                    gender = s.genderArray[i],
+                    pitch = s.pitch[i],
+                    roll = s.roll[i],
+                    yaw = s.yaw[i],
+                });
             }
-            pitch = line;
-            image.UnlockBits(data);
-            return destBitArray;
+            return fs;
         }
+    }
+}
+namespace Meow.FaceRecon.WinImage
+{
+    /// <summary>
+    /// 工具类
+    /// </summary>
+    public static class Util
+    {
         /// <summary>
         /// [Meow扩展]原图中画出人脸
         /// </summary>
@@ -178,8 +183,9 @@ namespace Meow.FaceRecon
         /// <param name="LineWidth">线粗细程度</param>
         /// <param name="ds">边框类型</param>
         /// <returns></returns>
-        public static void DrawRectangleInPicture(this Image i, MRECT m, Color RectColor, 
-            int LineWidth = 3, DashStyle ds = DashStyle.Solid)
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
+        public static void DrawRectangleInPicture(this Image i, MRECT m, Color RectColor,
+            int LineWidth = 4, DashStyle ds = DashStyle.Solid)
         {
             Point p0 = new(m.left, m.top);
             Point p1 = new(m.right, m.bottom);
@@ -196,13 +202,14 @@ namespace Meow.FaceRecon
         /// <param name="lt">左上角定位</param>
         /// <param name="rb">右下角定位</param> 
         /// <param name="text">文字内容</param>
-        /// <param name="Color">文字颜色</param> 
+        /// <param name="Color">文字颜色</param>
+        /// <param name="alpha">文字不透明度</param> 
         /// <param name="fontName">字体名称</param> 
         /// <returns>添加文字后的Bitmap对象</returns> 
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
         public static void DrawString(this Image img,
-            (float left, float top) lt,
-            (float right, float bottom) rb,
-            string text, Color Color, string fontName = "微软雅黑")
+            (float left, float top) lt, (float right, float bottom) rb,
+            string text, Color Color, int alpha = 175, string fontName = "微软雅黑")
         {
             using Graphics graph = Graphics.FromImage(img);
             float x1 = lt.left;
@@ -235,7 +242,7 @@ namespace Meow.FaceRecon
             }
             x1 += (fontWidth - sf.Width) / 2;
             y1 += (fontHeight - sf.Height) / 2;
-            graph.DrawString(text, font, new SolidBrush(Color), x1, y1);
+            graph.DrawString(text, font, new SolidBrush(Color.FromArgb(alpha, Color)), x1, y1);
         }
         /// <summary>
         /// [Meow扩展]添加文字
@@ -245,16 +252,18 @@ namespace Meow.FaceRecon
         /// <param name="pct">文字占人脸框比例</param>
         /// <param name="text">文字</param>
         /// <param name="Color">文字颜色</param> 
+        /// <param name="alpha">文字不透明度</param> 
         /// <param name="fontName">字体名称</param>
         /// <returns></returns>
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
         public static void DrawString(this Image img,
-            MRECT m, string text, Color Color, float pct = .2f, string fontName = "微软雅黑")
+            MRECT m, string text, Color Color, int alpha = 175, float pct = .5f, string fontName = "微软雅黑")
         {
             using Graphics graph = Graphics.FromImage(img);
             float x1 = m.left;
             float y1 = m.top;
             float x2 = m.right;
-            float y2 = m.top + (m.bottom-m.top) * pct;
+            float y2 = m.top + (m.bottom - m.top) * pct;
             float fontWidth = x2 - x1;
             float fontHeight = y2 - y1;
             float fontSize = fontHeight;
@@ -281,18 +290,18 @@ namespace Meow.FaceRecon
             }
             x1 += (fontWidth - sf.Width) / 2;
             y1 += (fontHeight - sf.Height) / 2;
-            graph.DrawString(text, font, new SolidBrush(Color), x1, y1);
+            graph.DrawString(text, font, new SolidBrush(Color.FromArgb(alpha, Color)), x1, y1);
         }
         /// <summary>
         /// [Meow扩展]获取打包好的Image
         /// </summary>
         /// <param name="ix">Image</param>
-        /// <param name="diffSize">放大倍数</param>
         /// <returns></returns>
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
         public static ASVLOFFSCREEN GetBitMapPack(this Image ix)
         {
-            var w_ = 0;
-            for (int j = ix.Width; j < ix.Width + 10; j++) 
+            int w_ = ix.Width - 4;
+            for (int j = w_; j < ix.Width + 4; j++)
             {
                 if (j % 4 == 0)
                 {
@@ -300,51 +309,38 @@ namespace Meow.FaceRecon
                     break;
                 }
             }
-            using var b = new Bitmap(ix, new Size(w_, ix.Height));
-            var i = b.Read(out int w, out int h, out int p);
-            IntPtr ip = Marshal.AllocHGlobal(i.Length);
-            Marshal.Copy(i, 0, ip, i.Length);
+            using var b = new Bitmap(ix, w_, ix.Height);//宽度变换
+            using Bitmap bmp = new(b.Width, b.Height, PixelFormat.Format24bppRgb);
+            using Graphics g = Graphics.FromImage(bmp);
+            g.DrawImageUnscaled(b, 0, 0); //图像格式转换
+            var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+            var w = bmpData.Width;
+            var h = bmpData.Height;
+            var p = bmpData.Stride;
+            byte[] bp = new byte[h * p]; //结构体转换
+            Marshal.Copy(bmpData.Scan0, bp, 0, bp.Length);
+            bmp.UnlockBits(bmpData);
+            IntPtr ip = Marshal.AllocHGlobal(bp.Length);
+            Marshal.Copy(bp, 0, ip, bp.Length);
             ASVLOFFSCREEN o = new();
             o.u32PixelArrayFormat = (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8;
-            o.ppu8Plane = new IntPtr[4] { ip, new(), new(), new() };
-            o.i32Width = w;
-            o.i32Height = h;
+            o.ppu8Plane = new IntPtr[4] { ip, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero };
+            o.i32Width = bmp.Width;
+            o.i32Height = bmp.Height;
             o.pi32Pitch = new int[4] { p, 0, 0, 0 };
             return o;
-        }
-        /// <summary>
-        /// 转换成人脸总体列表模式
-        /// </summary>
-        /// <param name="s">SDK_FaceGeneral类</param>
-        /// <returns></returns>
-        public static List<SDK.Model.SDK_Faces> ConvertIntoFaces(this SDK.Model.SDK_FaceGeneral s)
-        {
-            List<SDK.Model.SDK_Faces> fs = new();
-            for (int i = 0; i < s.faceNum; i++)
-            {
-                fs.Add(new()
-                {
-                    age = s.ageArray[i],
-                    faceOrient = s.faceOrient[i],
-                    status = s.status[i],
-                    faceRect = s.faceRect[i],
-                    gender = s.genderArray[i],
-                    pitch = s.pitch[i],
-                    roll = s.roll[i],
-                    yaw = s.yaw[i],
-                });
-            }
-            return fs;
         }
         /// <summary>
         /// [Meow扩展]将Base64字符串转换成Image对象
         /// </summary>
         /// <param name="base64String"></param>
         /// <returns></returns>
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
         public static Image Base64ToImage(this string base64String)
         {
             byte[] imageBytes = Convert.FromBase64String(base64String);
-            MemoryStream ms = new MemoryStream(imageBytes, 0, imageBytes.Length);
+            MemoryStream ms = new (imageBytes, 0, imageBytes.Length);
             ms.Write(imageBytes, 0, imageBytes.Length);
             Image image = Image.FromStream(ms, true);
             return image;
@@ -354,6 +350,7 @@ namespace Meow.FaceRecon
         /// </summary>
         /// <param name="i"></param>
         /// <returns></returns>
+        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
         public static string ImgToBase64(this Image i)
         {
             Bitmap bmp = new(i);
@@ -365,5 +362,149 @@ namespace Meow.FaceRecon
             ms.Close();
             return Convert.ToBase64String(arr);
         }
+    }
+}
+namespace Meow.FaceRecon.Skia
+{
+    /// <summary>
+    /// 工具类
+    /// </summary>
+    public static class Util
+    {
+        /// <summary>
+        /// [Meow扩展]获取打包好的string
+        /// </summary>
+        /// <param name="b">ImageArray</param>
+        /// <returns></returns>
+        public static ASVLOFFSCREEN GetBitMapPack(this SKBitmap b)
+        {
+            int w_ = b.Width - 4;
+            for (int j_ = w_; j_ < b.Width + 4; j_++)
+            {
+                if (j_ % 4 == 0)
+                {
+                    w_ = j_;
+                    break;
+                }
+            }
+            using SKBitmap bp = new(w_,b.Height,SKColorType.Rgb888x,SKAlphaType.Opaque);
+            if(!b.ScalePixels(bp, SKFilterQuality.None))
+            {
+                throw new Exception($"IMG_Skia Phase : [exc] 图像处理异常,无法放缩图像");
+            }
+            var h = bp.Height;
+            var w = bp.Width;
+            var p = bp.Width * 3; //stride
+            var arr = new byte[h * p]; 
+            int i = 0;
+            int j = 0;
+            foreach(var k in bp.Bytes)
+            {
+                if(i++ == 3)
+                {
+                    i = 0;
+                    continue;
+                }
+                else
+                {
+                    arr[j++] = k;
+                }
+            }
+            IntPtr ip = Marshal.AllocHGlobal(arr.Length);
+            Marshal.Copy(arr, 0, ip, arr.Length);
+            ASVLOFFSCREEN o = new();
+            o.u32PixelArrayFormat = (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8;
+            o.ppu8Plane = new IntPtr[4] { ip, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero };
+            o.i32Width = w;
+            o.i32Height = h;
+            o.pi32Pitch = new int[4] { p, 0, 0, 0 };
+            return o;
+        }
+        /// <summary>
+        /// 图上绘制框和文字
+        /// </summary>
+        /// <param name="b">图</param>
+        /// <param name="m">方框位置</param>
+        /// <param name="text">字体</param>
+        /// <param name="Color">颜色</param>
+        /// <param name="fontName">字体库</param>
+        public static SKBitmap DrawStringAndRect(this SKBitmap b, 
+            MRECT m, string text, SKColor Color, string fontName = "微软雅黑")
+        {
+            var textsize = (m.bottom - m.top) / 2;
+            var alignleftp = (m.left + (Math.Abs(m.right - m.left)) / 2);
+            var aligntopp = (m.top + (Math.Abs(m.bottom - m.top)) / 2) + textsize / 2;
+            using SKSurface surface = SKSurface.Create(b.Info);
+            using SKCanvas c = surface.Canvas;
+            c.DrawBitmap(b, 0, 0);
+            c.DrawRoundRect(new SKRoundRect(new SKRect(m.left, m.top, m.right, m.bottom),5f), new()
+            {
+                StrokeWidth = 5,
+                Color = Color,
+                Style = SKPaintStyle.Stroke,
+            });
+            c.DrawText(text, new SKPoint(alignleftp, aligntopp), new()
+            {
+                Color = Color,
+                TextEncoding = SKTextEncoding.Utf8,
+                TextAlign = SKTextAlign.Center,
+                Typeface = SKTypeface.FromFamilyName(fontName),
+                TextSize = textsize,
+            });
+            c.Save();
+            return SKBitmap.Decode(surface.Snapshot().Encode(SKEncodedImageFormat.Jpeg, 100));
+        }
+        /// <summary>
+        /// 图上绘制框和文字 (默认年龄,男蓝框女粉框未检测出来黑框)
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="t"></param>
+        /// <param name="fontName"></param>
+        /// <returns></returns>
+        public static SKBitmap DrawStringAndRect(this SKBitmap b,
+            SDK.Model.SDK_Faces t, string fontName = "微软雅黑")
+        {
+            return b.DrawStringAndRect(
+                t.faceRect, 
+                $"{t.age}", 
+                (t.gender == 1 ? new(255, 192, 203, 150) : (t.gender == 0 ? new(65, 105, 225, 150) : new(0, 0, 0, 150))),
+                fontName
+                );
+        }
+        /// <summary>
+        /// [Meow扩展]将Image对象转换为Base64
+        /// </summary>
+        /// <param name="i"></param>
+        /// <returns></returns>
+        public static string ToBase64String(this SKImage i)
+        {
+            MemoryStream ms = new();
+            i.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 100).SaveTo(ms);
+            byte[] arr = new byte[ms.Length];
+            ms.Position = 0;
+            ms.Read(arr, 0, (int)ms.Length);
+            ms.Close();
+            return Convert.ToBase64String(arr);
+        }
+        /// <summary>
+        /// 保存位图图像
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="path">路径</param>
+        /// <param name="f">图像格式</param>
+        /// <param name="Quality">质量参数</param>
+        public static void Save(this SKBitmap i, string path, SKEncodedImageFormat f = SKEncodedImageFormat.Jpeg, int Quality = 100) => i.Encode(f, Quality).SaveTo(File.OpenWrite(path));
+        /// <summary>
+        /// [Meow扩展]将Bitmap对象转换为Base64
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static string ToBase64String(this SKBitmap b) => SKImage.FromBitmap(b).ToBase64String();
+        /// <summary>
+        /// [Meow扩展]将Base64字符串转换成Image对象
+        /// </summary>
+        /// <param name="base64String"></param>
+        /// <returns></returns>
+        public static SKBitmap Base64ToSKBitmap(this string base64String) => SKBitmap.Decode(Convert.FromBase64String(base64String));
     }
 }

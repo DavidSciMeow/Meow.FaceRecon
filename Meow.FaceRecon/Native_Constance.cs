@@ -593,7 +593,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 定义图片格式空间
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential,Pack = 4)]
     public struct ASVLOFFSCREEN
     {
         /// <summary>

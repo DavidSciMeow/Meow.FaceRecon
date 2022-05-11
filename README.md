@@ -16,8 +16,27 @@
     1. [完全检查 (使用原始数组)](#35)
     1. [完全检查 (使用转换人脸列表)](#36)
 1. [建议的引擎池使用方法](#4)
-1. 静态扩展类方法 (施工中)
-1. 识别顺序和软件工作原理 (施工中)
+
+## 20220511 关于建议使用Skia实现功能并逐步废弃WinImage处理方案
+```csharp
+using Meow.FaceRecon;
+using Meow.FaceRecon.Skia;
+using MeowFaceReconTest;
+
+Meow.FaceRecon.SDK.GlobalSetting.LogMode = -1;
+
+var fp = "D:/123.jpg";
+var s = SkiaSharp.SKBitmap.Decode(new SkiaSharp.SKManagedStream(File.OpenRead(fp)));
+var ep = new Meow.FaceRecon.Skia.FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //生成一个面部识别引擎管理池
+(await ep.DetAllFaceAsync(s)) //Base64字符串转换Image
+    .ConvertIntoFaces()
+    .ForEach(t =>
+{
+    s = s.DrawStringAndRect(t);
+});
+Console.WriteLine(s.ToBase64String());
+s.Save("D:/testrec.jpg");
+```
 
 ## 1. 申请虹软软件开发AppKey(id)/SDKKey<a name="1"></a>
 -------
@@ -184,3 +203,4 @@ var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux); //生成一个�
 var p = Path.GetFileName(fp).Split(".");
 i.Save($"D:/{p[0]}-Recon.{p[^1]}");
 ```
+

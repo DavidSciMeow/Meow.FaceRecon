@@ -164,6 +164,12 @@ namespace Meow.FaceRecon.SDK.Model
         /// <para>0: 正常，其他数值：出错</para>
         /// </summary>
         public List<int> status = new();
+        /// <summary>
+        /// [out] 判断是否真人
+        /// <para>0：非真人 1：真人 -1：不确定 -2:传入人脸数>1</para>
+        /// <para>-3: 人脸过小 -4: 角度过大 -5: 人脸超出边界</para>
+        /// </summary>
+        public List<int> liveness = new();
     }
     /// <summary>
     /// 单人脸总体属性
@@ -205,5 +211,11 @@ namespace Meow.FaceRecon.SDK.Model
         /// <para>0: 正常，其他数值：出错</para>
         /// </summary>
         public int status;
+        /// <summary>
+        /// [out] 判断是否真人
+        /// <para>0：非真人 1：真人 -1：不确定 -2:传入人脸数>1</para>
+        /// <para>-3: 人脸过小 -4: 角度过大 -5: 人脸超出边界</para>
+        /// </summary>
+        public int liveness;
     }
 }

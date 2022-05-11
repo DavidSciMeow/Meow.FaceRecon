@@ -40,10 +40,6 @@ namespace Meow.FaceRecon.NativeSDK
         /// IR活体
         /// </summary>
         ASF_IR_LIVENESS = 1024,
-        /// <summary>
-        /// 全部
-        /// </summary>
-        ASF_ALL = ASF_NONE | ASF_FACE_DETECT | ASF_FACERECOGNITION | ASF_AGE | ASF_GENDER | ASF_FACE3DANGLE | ASF_LIVENESS | ASF_IR_LIVENESS,
     }
     /// <summary>
     /// 检测模式
@@ -430,7 +426,7 @@ namespace Meow.FaceRecon.NativeSDK
         ASVL_PAF_RAW10_GRAY_16B = 3713,
     }
 
-    //[StructLayout(LayoutKind.Auto)]
+    //[StructLayout(LayoutKind.Sequential)]
 
     /// <summary>
     /// 识别矩形
@@ -588,6 +584,7 @@ namespace Meow.FaceRecon.NativeSDK
     /// <summary>
     /// 定义图片格式空间
     /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public struct ASVLOFFSCREEN
     {
         /// <summary>

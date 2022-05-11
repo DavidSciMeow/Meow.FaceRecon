@@ -150,18 +150,18 @@ namespace Meow.FaceRecon
         {
             List<SDK.Model.SDK_Faces> fs = new();
             for (int i = 0; i < s.faceNum; i++)
-            {
-                fs.Add(new()
-                {
-                    age = s.ageArray[i],
-                    faceOrient = s.faceOrient[i],
-                    status = s.status[i],
-                    faceRect = s.faceRect[i],
-                    gender = s.genderArray[i],
-                    pitch = s.pitch[i],
-                    roll = s.roll[i],
-                    yaw = s.yaw[i],
-                });
+            { //reduce to any format
+                var f = new SDK.Model.SDK_Faces();
+                try { f.age = s.ageArray[i]; }catch { }
+                try { f.gender = s.genderArray[i]; }catch { }
+                try { f.faceRect = s.faceRect[i]; }catch { }
+                try { f.faceOrient = s.faceOrient[i]; }catch { }
+                try { f.pitch = s.pitch[i]; }catch { }
+                try { f.roll = s.roll[i]; }catch { }
+                try { f.yaw = s.yaw[i]; }catch { }
+                try { f.status = s.status[i]; }catch { }
+                try { f.liveness = s.liveness[i]; }catch { }
+                fs.Add(f);
             }
             return fs;
         }
@@ -210,196 +210,6 @@ namespace Meow.FaceRecon
             ip = Marshal.AllocHGlobal(arr.Length);
             Marshal.Copy(arr, 0, ip, arr.Length);
         }
-
-        /// <summary>
-        /// [Meow扩展]原图中画出人脸
-        /// </summary>
-        /// <param name="i">原图</param>
-        /// <param name="m">得到的矩形位置</param>
-        /// <param name="RectColor">方框颜色</param>
-        /// <param name="LineWidth">线粗细程度</param>
-        /// <param name="ds">边框类型</param>
-        /// <returns></returns>
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static void DrawRectangleInPicture(this Image i, MRECT m, Color RectColor,
-            int LineWidth = 4, DashStyle ds = DashStyle.Solid)
-        {
-            Point p0 = new(m.left, m.top);
-            Point p1 = new(m.right, m.bottom);
-            using Graphics g = Graphics.FromImage(i);
-            Brush brush = new SolidBrush(RectColor);
-            Pen pen = new(brush, LineWidth);
-            pen.DashStyle = ds;
-            g.DrawRectangle(pen, new Rectangle(p0.X, p0.Y, Math.Abs(p0.X - p1.X), Math.Abs(p0.Y - p1.Y)));
-        }
-        /// <summary>
-        /// [Meow扩展]添加文字
-        /// </summary> 
-        /// <param name="img">图片</param>
-        /// <param name="lt">左上角定位</param>
-        /// <param name="rb">右下角定位</param> 
-        /// <param name="text">文字内容</param>
-        /// <param name="Color">文字颜色</param>
-        /// <param name="alpha">文字不透明度</param> 
-        /// <param name="fontName">字体名称</param> 
-        /// <returns>添加文字后的Bitmap对象</returns> 
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static void DrawString(this Image img,
-            (float left, float top) lt, (float right, float bottom) rb,
-            string text, Color Color, int alpha = 175, string fontName = "微软雅黑")
-        {
-            using Graphics graph = Graphics.FromImage(img);
-            float x1 = lt.left;
-            float y1 = lt.top;
-            float x2 = rb.right;
-            float y2 = rb.bottom;
-            float fontWidth = x2 - x1;
-            float fontHeight = y2 - y1;
-            float fontSize = fontHeight;
-            Font font = new(fontName, fontSize, GraphicsUnit.Pixel);
-            SizeF sf = graph.MeasureString(text, font);
-            int times = 0;
-            if (sf.Width > fontWidth)
-            {
-                while (sf.Width > fontWidth)
-                {
-                    fontSize -= 0.1f;
-                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
-                    sf = graph.MeasureString(text, font); times++;
-                }
-            }
-            else if (sf.Width < fontWidth)
-            {
-                while (sf.Width < fontWidth)
-                {
-                    fontSize += 0.1f;
-                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
-                    sf = graph.MeasureString(text, font); times++;
-                }
-            }
-            x1 += (fontWidth - sf.Width) / 2;
-            y1 += (fontHeight - sf.Height) / 2;
-            graph.DrawString(text, font, new SolidBrush(Color.FromArgb(alpha, Color)), x1, y1);
-        }
-        /// <summary>
-        /// [Meow扩展]添加文字
-        /// </summary>
-        /// <param name="img">图片</param>
-        /// <param name="m">人脸框位置</param>
-        /// <param name="pct">文字占人脸框比例</param>
-        /// <param name="text">文字</param>
-        /// <param name="Color">文字颜色</param> 
-        /// <param name="alpha">文字不透明度</param> 
-        /// <param name="fontName">字体名称</param>
-        /// <returns></returns>
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static void DrawString(this Image img,
-            MRECT m, string text, Color Color, int alpha = 175, float pct = .5f, string fontName = "微软雅黑")
-        {
-            using Graphics graph = Graphics.FromImage(img);
-            float x1 = m.left;
-            float y1 = m.top;
-            float x2 = m.right;
-            float y2 = m.top + (m.bottom - m.top) * pct;
-            float fontWidth = x2 - x1;
-            float fontHeight = y2 - y1;
-            float fontSize = fontHeight;
-            Font font = new(fontName, fontSize, GraphicsUnit.Pixel);
-            SizeF sf = graph.MeasureString(text, font);
-            int times = 0;
-            if (sf.Width > fontWidth)
-            {
-                while (sf.Width > fontWidth)
-                {
-                    fontSize -= 0.1f;
-                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
-                    sf = graph.MeasureString(text, font); times++;
-                }
-            }
-            else if (sf.Width < fontWidth)
-            {
-                while (sf.Width < fontWidth)
-                {
-                    fontSize += 0.1f;
-                    font = new Font(fontName, fontSize, GraphicsUnit.Pixel);
-                    sf = graph.MeasureString(text, font); times++;
-                }
-            }
-            x1 += (fontWidth - sf.Width) / 2;
-            y1 += (fontHeight - sf.Height) / 2;
-            graph.DrawString(text, font, new SolidBrush(Color.FromArgb(alpha, Color)), x1, y1);
-        }
-        /// <summary>
-        /// [Meow扩展]获取打包好的Image
-        /// </summary>
-        /// <param name="ix">Image</param>
-        /// <returns></returns>
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static ASVLOFFSCREEN GetBitMapPack(this Image ix)
-        {
-            int w_ = ix.Width - 4;
-            for (int j = w_; j < ix.Width + 4; j++)
-            {
-                if (j % 4 == 0)
-                {
-                    w_ = j;
-                    break;
-                }
-            }
-            using var b = new Bitmap(ix, w_, ix.Height);//宽度变换
-            using Bitmap bmp = new(b.Width, b.Height, PixelFormat.Format24bppRgb);
-            using Graphics g = Graphics.FromImage(bmp);
-            g.DrawImageUnscaled(b, 0, 0); //图像格式转换
-            var rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
-            BitmapData bmpData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            var w = bmpData.Width;
-            var h = bmpData.Height;
-            var p = bmpData.Stride;
-            byte[] bp = new byte[h * p]; //结构体转换
-            Marshal.Copy(bmpData.Scan0, bp, 0, bp.Length);
-            bmp.UnlockBits(bmpData);
-            IntPtr ip = Marshal.AllocHGlobal(bp.Length);
-            Marshal.Copy(bp, 0, ip, bp.Length);
-            ASVLOFFSCREEN o = new();
-            o.u32PixelArrayFormat = (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8;
-            o.ppu8Plane = new IntPtr[4] { ip, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero };
-            o.i32Width = bmp.Width;
-            o.i32Height = bmp.Height;
-            o.pi32Pitch = new int[4] { p, 0, 0, 0 };
-            return o;
-        }
-        /// <summary>
-        /// [Meow扩展]将Base64字符串转换成Image对象
-        /// </summary>
-        /// <param name="base64String"></param>
-        /// <returns></returns>
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static Image Base64ToImage(this string base64String)
-        {
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-            MemoryStream ms = new (imageBytes, 0, imageBytes.Length);
-            ms.Write(imageBytes, 0, imageBytes.Length);
-            Image image = Image.FromStream(ms, true);
-            return image;
-        }
-        /// <summary>
-        /// [Meow扩展]将Image对象转换为Base64
-        /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
-        [Obsolete("由于Image在Linux弃用,故建议使用skia实现")]
-        public static string ImgToBase64(this Image i)
-        {
-            Bitmap bmp = new(i);
-            MemoryStream ms = new();
-            bmp.Save(ms, ImageFormat.Jpeg);
-            byte[] arr = new byte[ms.Length];
-            ms.Position = 0;
-            ms.Read(arr, 0, (int)ms.Length);
-            ms.Close();
-            return Convert.ToBase64String(arr);
-        }
-
         /// <summary>
         /// [Meow扩展]获取打包好的Pack
         /// </summary>
@@ -449,7 +259,6 @@ namespace Meow.FaceRecon
             o.pi32Pitch = new int[4] { p, 0, 0, 0 };
             return o;
         }
-
         /// <summary>
         /// 图上绘制框和文字
         /// </summary>
@@ -536,5 +345,25 @@ namespace Meow.FaceRecon
         /// <param name="base64String"></param>
         /// <returns></returns>
         public static SKBitmap Base64ToSKBitmap(this string base64String) => SKBitmap.Decode(Convert.FromBase64String(base64String));
+        /// <summary>
+        /// 转换默认类型到SDK类型
+        /// </summary>
+        /// <param name="info">原始类型</param>
+        /// <returns></returns>
+        public static SDK.Model.SDK_MultiFaceInfo InfoToSDKInfo(this ASF_MultiFaceInfo info)
+        {
+            SDK.Model.SDK_MultiFaceInfo result = new();
+            result.faceNum = info.faceNum;
+            for (int j = 0; j < info.faceNum; j++)
+            {
+                //构造类
+                result.faceRect.Add(Marshal.PtrToStructure<MRECT>(info.faceRect));
+                result.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(info.faceOrient));
+                //步进记录(原始)
+                info.faceRect += Marshal.SizeOf(typeof(MRECT));
+                info.faceOrient += Marshal.SizeOf(typeof(int));
+            }
+            return result;
+        }
     }
 }

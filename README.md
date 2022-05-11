@@ -55,5 +55,54 @@ ASFGetLivenessScore                            | √ | 20220425
 ASFGetLivenessScore_IR                         | pending | /
 
 ## 3. (基类)简易使用方法<a name="3"></a>
+```csharp
+using Meow.FaceRecon;
+using Meow.FaceRecon.SDK;
 
+GlobalSetting.LogMode = -1;//日志打印
+var fp = "D:/123.png"; //文件句柄
+
+
+//获取文件转换SKBitMap
+var s = SkiaSharp.SKBitmap.Decode(new SkiaSharp.SKManagedStream(File.OpenRead(fp)));
+//读取base64串(假设)
+//var s = "".Base64ToSKBitmap();
+
+
+//实例化检测池,检测所有参数
+var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux);
+var mfi = new MultiFaceEngine(ep.Appid, ep.Key).Detect(s);
+var afi = new AgeFaceProcess(ep.Appid, ep.Key).Detect(s,mfi);
+var gfi = new GenderFaceProcess(ep.Appid, ep.Key).Detect(s,mfi);
+var lfi = new LivenessFaceProcess(ep.Appid, ep.Key).Detect(s, mfi);
+var agfi = new AngleFaceProcess(ep.Appid, ep.Key).Detect(s, mfi);
+
+//代理参数转换为SDK常量
+var dfi = mfi.InfoToSDKInfo();
+var fs = new Meow.FaceRecon.SDK.Model.SDK_FaceGeneral();
+fs.faceNum = dfi.faceNum;
+//生成SDK参数
+for (int i = 0; i < dfi.faceNum; i++)
+{
+    fs.faceRect.Add(dfi.faceRect[i]);
+    fs.ageArray.Add(afi.ageArray[i]);
+    fs.genderArray.Add(gfi.genderArray[i]);
+    fs.liveness.Add(lfi.isLive[i]);
+    fs.pitch.Add(agfi.pitch[i]);
+    fs.yaw.Add(agfi.yaw[i]);
+    fs.roll.Add(agfi.roll[i]);
+    fs.status.Add(agfi.status[i]);
+}
+
+//使用Util转换人脸模式
+foreach(var t in fs.ConvertIntoFaces())
+{
+    s = s.DrawStringAndRect(t);//扩展的画图功能
+}
+
+//保存图像
+s.Save("D:/testrec.jpg");
+//保存Base64串
+Console.WriteLine(s.ToBase64String());
+```
 

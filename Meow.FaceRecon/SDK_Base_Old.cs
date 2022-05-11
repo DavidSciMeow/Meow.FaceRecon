@@ -1,4 +1,5 @@
-﻿using Meow.FaceRecon.NativeSDK;
+﻿/*
+using Meow.FaceRecon.NativeSDK;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -112,7 +113,6 @@ namespace Meow.FaceRecon.SDK.Old
             }
         }
 
-        /*Dispose Interface*/
         /// <summary>
         /// 销毁
         /// </summary>
@@ -561,4 +561,4 @@ namespace Meow.FaceRecon.SDK.Old
         }
     }
 }
-
+*/

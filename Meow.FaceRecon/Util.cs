@@ -165,15 +165,52 @@ namespace Meow.FaceRecon
             }
             return fs;
         }
-    }
-}
-namespace Meow.FaceRecon.WinImage
-{
-    /// <summary>
-    /// 工具类
-    /// </summary>
-    public static class Util
-    {
+        /// <summary>
+        /// [Meow扩展]获取打包好的Pack
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <param name="ip"></param>
+        /// <exception cref="Exception"></exception>
+        public static void GetBitMapPackX(this SKBitmap b, out int w, out int h, out IntPtr ip)
+        {
+            int w_ = b.Width - 4;
+            for (int j_ = w_; j_ < b.Width + 4; j_++)
+            {
+                if (j_ % 4 == 0)
+                {
+                    w_ = j_;
+                    break;
+                }
+            }
+            using SKBitmap bp = new(w_, b.Height, SKColorType.Rgb888x, SKAlphaType.Opaque);
+            if (!b.ScalePixels(bp, SKFilterQuality.None))
+            {
+                throw new Exception($"IMG_Skia Phase : [exc] 图像处理异常,无法放缩图像");
+            }
+            h = bp.Height;
+            w = bp.Width;
+            var p = bp.Width * 3; //stride
+            var arr = new byte[h * p];
+            int i = 0;
+            int j = 0;
+            foreach (var k in bp.Bytes)
+            {
+                if (i++ == 3)
+                {
+                    i = 0;
+                    continue;
+                }
+                else
+                {
+                    arr[j++] = k;
+                }
+            }
+            ip = Marshal.AllocHGlobal(arr.Length);
+            Marshal.Copy(arr, 0, ip, arr.Length);
+        }
+
         /// <summary>
         /// [Meow扩展]原图中画出人脸
         /// </summary>
@@ -362,17 +399,9 @@ namespace Meow.FaceRecon.WinImage
             ms.Close();
             return Convert.ToBase64String(arr);
         }
-    }
-}
-namespace Meow.FaceRecon.Skia
-{
-    /// <summary>
-    /// 工具类
-    /// </summary>
-    public static class Util
-    {
+
         /// <summary>
-        /// [Meow扩展]获取打包好的string
+        /// [Meow扩展]获取打包好的Pack
         /// </summary>
         /// <param name="b">ImageArray</param>
         /// <returns></returns>
@@ -420,6 +449,7 @@ namespace Meow.FaceRecon.Skia
             o.pi32Pitch = new int[4] { p, 0, 0, 0 };
             return o;
         }
+
         /// <summary>
         /// 图上绘制框和文字
         /// </summary>

@@ -74,7 +74,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="detectModel">[in] 预留字段，当前版本使用默认参数即可</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFDetectFaces), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFDetectFaces(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, ASF_DetectModel detectModel = ASF_DetectModel.ASF_DETECT_MODEL_RGB);
+        public static extern int ASFDetectFaces(IntPtr hEngine, int width, int height, int format, IntPtr imgData, out ASF_MultiFaceInfo detectedFaces, ASF_DetectModel detectModel = ASF_DetectModel.ASF_DETECT_MODEL_RGB);
         /// <summary>
         /// VIDEO模式:人脸追踪 IMAGE模式:人脸检测 
         /// <para>图像数据以结构体形式传入，对采用更高字节对齐方式的图像兼容性更好</para>
@@ -110,7 +110,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="combinedMask">[in] 只支持初始化时候指定需要检测的功能，在process时进一步在这个已经指定的功能集中继续筛选</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFProcess), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFProcess(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        public static extern int ASFProcess(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 年龄/性别/人脸3D角度（该接口仅支持RGB图像）
         /// <para>最多支持4张人脸信息检测，超过部分返回未知</para>
@@ -137,7 +137,7 @@ namespace Meow.FaceRecon.NativeSDK
         /// <param name="combinedMask">[in] 目前只支持传入ASF_IR_LIVENESS属性的传入，且初始化接口需要传入 </param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFProcess_IR), CallingConvention = CallingConvention.Cdecl)]
-        public static extern int ASFProcess_IR(IntPtr hEngine, int width, int height, int format, IntPtr imgData, ref ASF_MultiFaceInfo detectedFaces, int combinedMask);
+        public static extern int ASFProcess_IR(IntPtr hEngine, int width, int height, int format, IntPtr imgData, out ASF_MultiFaceInfo detectedFaces, int combinedMask);
         /// <summary>
         /// 该接口目前仅支持单人脸IR活体检测（不支持年龄、性别、3D角度的检测）,
         /// <para>默认取第一张人脸</para>

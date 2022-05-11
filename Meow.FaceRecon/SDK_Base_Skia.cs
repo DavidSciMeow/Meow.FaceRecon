@@ -1,9 +1,8 @@
 ﻿using Meow.FaceRecon.NativeSDK;
-using Meow.FaceRecon.Skia;
 using SkiaSharp;
 using System.Runtime.InteropServices;
 
-namespace Meow.FaceRecon.SDK.Skia
+namespace Meow.FaceRecon.SDK
 {
     /// <summary>
     /// 引擎定义
@@ -170,7 +169,9 @@ namespace Meow.FaceRecon.SDK.Skia
         /// <exception cref="Exception"></exception>
         protected ASF_MultiFaceInfo DetectMultiFaceBase(SKBitmap fp)
         {
-            var s = (APIResult)NativeFunction.ASFDetectFacesEx(detectEngine, fp.GetBitMapPack(), out ASF_MultiFaceInfo info);
+            //var s = (APIResult)NativeFunction.ASFDetectFacesEx(detectEngine, fp.GetBitMapPack(), out ASF_MultiFaceInfo info);
+            fp.GetBitMapPackX(out var w, out var h, out var ip);
+            var s = (APIResult)NativeFunction.ASFDetectFaces(detectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, out ASF_MultiFaceInfo info);
             if (s != APIResult.MOK)
             {
                 throw new Exception($"Detect_Face Phase : [{s}] {s.ApiResultToChinese()}");
@@ -224,7 +225,8 @@ namespace Meow.FaceRecon.SDK.Skia
         (ASF_MultiFaceInfo, ASF_AgeInfo) DetectAgeBase(SKBitmap fp)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(fp);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, fp.GetBitMapPack(), info, (int)Mask.ASF_AGE);
+            fp.GetBitMapPackX(out var w, out var h, out var ip);
+            var s = (APIResult)NativeFunction.ASFProcess(detectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, info, (int)Mask.ASF_AGE);
             if (s != APIResult.MOK)
             {
                 throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
@@ -287,7 +289,8 @@ namespace Meow.FaceRecon.SDK.Skia
         (ASF_MultiFaceInfo, ASF_GenderInfo) DetectGenderBase(SKBitmap fp)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(fp);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, fp.GetBitMapPack(), info, (int)Mask.ASF_GENDER);
+            fp.GetBitMapPackX(out var w, out var h, out var ip);
+            var s = (APIResult)NativeFunction.ASFProcess(detectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, info, (int)Mask.ASF_GENDER);
             if (s != APIResult.MOK)
             {
                 throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
@@ -357,7 +360,8 @@ namespace Meow.FaceRecon.SDK.Skia
         (ASF_MultiFaceInfo, ASF_Face3DAngle) Detect3DAngleBase(SKBitmap i)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_FACE3DANGLE);
+            i.GetBitMapPackX(out var w, out var h, out var ip);
+            var s = (APIResult)NativeFunction.ASFProcess(detectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, info, (int)Mask.ASF_FACE3DANGLE);
             if (s != APIResult.MOK)
             {
                 throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
@@ -433,7 +437,8 @@ namespace Meow.FaceRecon.SDK.Skia
         (ASF_MultiFaceInfo, ASF_LivenessInfo) DetectLivenessBase(SKBitmap i)
         {
             ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)Mask.ASF_LIVENESS);
+            i.GetBitMapPackX(out var w, out var h, out var ip);
+            var s = (APIResult)NativeFunction.ASFProcess(detectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, info, (int)Mask.ASF_LIVENESS);
             if (s != APIResult.MOK)
             {
                 throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
@@ -469,93 +474,6 @@ namespace Meow.FaceRecon.SDK.Skia
                 infox.isLive += Marshal.SizeOf(typeof(int));
             }
             return (resultmfi, result);
-        }
-    }
-    /// <summary>
-    /// 年龄 性别 角度 检测工具
-    /// </summary>
-    public sealed class FullFaceProcess : MultiFaceEngine
-    {
-        /// <summary>
-        /// 年龄 性别 角度 检测工具
-        /// </summary>
-        /// <param name="appId">Appid</param>
-        /// <param name="sdkKey">SdkKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public FullFaceProcess(
-            string appId, string sdkKey,
-            ASF_DetectMode dm = ASF_DetectMode.ASF_DETECT_MODE_IMAGE,
-            ASF_OrientPriority op = ASF_OrientPriority.ASF_OP_0_ONLY,
-            int nScale = 32, int nMaxFaceNum = 10) :
-            base(appId, sdkKey, dm, op, nScale, nMaxFaceNum)
-        {
-        }
-        /// <summary>
-        /// 检测底
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        (ASF_MultiFaceInfo, ASF_AgeInfo, ASF_GenderInfo, ASF_Face3DAngle) DetectBase(SKBitmap i)
-        {
-            ASF_MultiFaceInfo info = DetectMultiFaceBase(i);
-            var s = (APIResult)NativeFunction.ASFProcessEx(detectEngine, i.GetBitMapPack(), info, (int)(Mask.ASF_AGE | Mask.ASF_GENDER | Mask.ASF_FACE3DANGLE));
-            if (s != APIResult.MOK)
-            {
-                throw new Exception($"Process Phase : [{s}] {s.ApiResultToChinese()}");
-            }
-            var s1 = (APIResult)NativeFunction.ASFGetAge(detectEngine, out ASF_AgeInfo info1);
-            if (s1 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Age Phase : [{s1}] {s1.ApiResultToChinese()}");
-            }
-            var s2 = (APIResult)NativeFunction.ASFGetGender(detectEngine, out ASF_GenderInfo info2);
-            if (s2 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Gender Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            var s3 = (APIResult)NativeFunction.ASFGetFace3DAngle(detectEngine, out ASF_Face3DAngle info3);
-            if (s3 != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Detect3DAngle Phase : [{s2}] {s2.ApiResultToChinese()}");
-            }
-            return (info, info1, info2, info3);
-        }
-        /// <summary>
-        /// 检测本图片
-        /// </summary>
-        /// <param name="i">图像对象</param>
-        /// <returns></returns>
-        public new Model.SDK_FaceGeneral Detect(SKBitmap i)
-        {
-            var (mfi, i1, i2, i3) = DetectBase(i);
-            Model.SDK_FaceGeneral result = new();
-            result.faceNum = mfi.faceNum;
-            for (int j = 0; j < mfi.faceNum; j++)
-            {
-                //构造类
-                result.faceRect.Add(Marshal.PtrToStructure<MRECT>(mfi.faceRect));
-                result.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(mfi.faceOrient));
-                result.ageArray.Add(Marshal.PtrToStructure<int>(i1.ageArray));
-                result.genderArray.Add(Marshal.PtrToStructure<int>(i2.genderArray));
-                result.pitch.Add(Marshal.PtrToStructure<float>(i3.pitch));
-                result.roll.Add(Marshal.PtrToStructure<float>(i3.roll));
-                result.yaw.Add(Marshal.PtrToStructure<float>(i3.yaw));
-                result.status.Add(Marshal.PtrToStructure<int>(i3.status));
-                //步进记录(原始)
-                mfi.faceRect += Marshal.SizeOf(typeof(MRECT));
-                mfi.faceOrient += Marshal.SizeOf(typeof(int));
-                i1.ageArray += Marshal.SizeOf(typeof(int));
-                i2.genderArray += Marshal.SizeOf(typeof(int));
-                i3.pitch += Marshal.SizeOf(typeof(float));
-                i3.roll += Marshal.SizeOf(typeof(float));
-                i3.yaw += Marshal.SizeOf(typeof(float));
-                i3.status += Marshal.SizeOf(typeof(int));
-            }
-            return result;
         }
     }
 }

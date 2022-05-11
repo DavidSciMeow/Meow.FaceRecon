@@ -1,9 +1,11 @@
 ﻿using Meow.FaceRecon.NativeSDK;
-using Meow.FaceRecon.WinImage;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace Meow.FaceRecon.SDK
+/// <summary>
+/// 旧引擎实现
+/// </summary>
+namespace Meow.FaceRecon.SDK.Old
 {
     /// <summary>
     /// 引擎定义

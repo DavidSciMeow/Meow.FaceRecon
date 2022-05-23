@@ -1,14 +1,12 @@
-name: CI
+name: PublishBranch
 
 on:
-  pull_request:
+  push:
     branches: [ PublishPackageBranch ]
 
 jobs:
-  build:
-
+  Do_3_xRelease:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -28,4 +26,26 @@ jobs:
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
        PROJECT_FILE_PATH: ./Meow.FaceRecon/Meow.FaceRecon.csproj
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+  Do_4_xRelease:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ./Meow.FaceRecon4/
+    - name: Build
+      run: dotnet build --no-restore
+      working-directory: ./Meow.FaceRecon4/
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon4/
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with:
+       PROJECT_FILE_PATH: ./Meow.FaceRecon4/Meow.FaceRecon4.csproj
        NUGET_KEY: ${{secrets.NUGET_API_KEY}}

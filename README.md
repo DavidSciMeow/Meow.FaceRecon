@@ -1,6 +1,6 @@
 # Meow.FaceRecon
 
-[![CI](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/dotnet.yml)
+[![PPB](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml/badge.svg?branch=main&event=workflow_run)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml)
 ![](https://img.shields.io/nuget/vpre/Electronicute.Meow.FaceRecon?label=NuGet%20Version)
 ![](https://img.shields.io/nuget/dt/Electronicute.Meow.FaceRecon?label=Nuget%20Download)
 
@@ -39,20 +39,20 @@
 `xx3xx` 是 错误码的中文意义  
 
 ## 2. TODO and Complete<a name="2"></a>
-TODO**                                      | **isComplete** |**UpdateAt**
-------------------------------------------------|----------------|----------------
-Dll外部调用引用                                  | √ | 20220421       
-Dll基础引擎管理                                  | √ | 20220421       
-ASFDetectMultiFace                             | √ | 20220422       
-ASFProcessEx_IR                                | pending | /
-ASFProcess_IR                                  | pending | /
-ASFFaceFeatureExtract                          | pending | /
-ASFFaceFeatureExtractEx                        | pending | /
-ASFGetAge                                      | √ | 20220423               
-ASFGetGender                                   | √ | 20220424               
-ASFGetFace3DAngle                              | √ | 20220425        
-ASFGetLivenessScore                            | √ | 20220425
-ASFGetLivenessScore_IR                         | pending | /
+TODO**                                      **UpdateAt**
+------------------------------------------------|----------------
+Dll外部调用引用                                  | 20220421       
+Dll基础引擎管理                                  | 20220421       
+ASFDetectMultiFace                             | 20220422       
+ASFProcessEx_IR                                | pending 
+ASFProcess_IR                                  | pending 
+ASFFaceFeatureExtract                          | pending 
+ASFFaceFeatureExtractEx                        | pending 
+ASFGetAge                                      | 20220423               
+ASFGetGender                                   | 20220424               
+ASFGetFace3DAngle                              | 20220425        
+ASFGetLivenessScore                            | 20220425
+ASFGetLivenessScore_IR                         | pending
 
 ## 3. (基类)简易使用方法<a name="3"></a>
 ```csharp

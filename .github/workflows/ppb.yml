@@ -1,12 +1,21 @@
 name: PPB
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      PPB3:
+        description: 'publish package to nuget -3'
+        required: true 
+        type: boolean 
+      PPB4:
+        description: 'publish package to nuget -4'
+        required: true 
+        type: boolean
 
 jobs:
   Do_4_xRelease:
     runs-on: ubuntu-latest
+    if:  ${{ github.event.inputs.PPB4 == 'true' }} 
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -29,6 +38,7 @@ jobs:
        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
   Do_3_xRelease:
     runs-on: ubuntu-latest
+    if:  ${{ github.event.inputs.PPB3 == 'true' }} 
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET

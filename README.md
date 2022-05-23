@@ -1,6 +1,6 @@
 # Meow.FaceRecon
 
-[![PPB](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml/badge.svg?branch=main&event=workflow_run)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml)
+[![PPB](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml/badge.svg)](https://github.com/DavidSciMeow/Meow.FaceRecon/actions/workflows/ppb.yml)
 ![](https://img.shields.io/nuget/vpre/Electronicute.Meow.FaceRecon?label=NuGet%20Version)
 ![](https://img.shields.io/nuget/dt/Electronicute.Meow.FaceRecon?label=Nuget%20Download)
 

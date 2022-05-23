@@ -1,0 +1,51 @@
+name: PPB
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  Do_4_xRelease:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore ./Meow.FaceRecon4/Meow.FaceRecon4.csproj
+      working-directory: ./Meow.FaceRecon4/
+    - name: Build
+      run: dotnet build ./Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-restore
+      working-directory: ./Meow.FaceRecon4/
+    - name: Test
+      run: dotnet test ./Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon4/
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with:
+       PROJECT_FILE_PATH: ./Meow.FaceRecon4/Meow.FaceRecon4.csproj
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+  Do_3_xRelease:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore ./Meow.FaceRecon/Meow.FaceRecon.csproj
+      working-directory: ./Meow.FaceRecon/
+    - name: Build
+      run: dotnet build ./Meow.FaceRecon/Meow.FaceRecon.csproj --no-restore
+      working-directory: ./Meow.FaceRecon/
+    - name: Test 
+      run: dotnet test ./Meow.FaceRecon/Meow.FaceRecon.csproj --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon/
+    - name: Publish
+      uses: brandedoutcast/publish-nuget@v2.5.2
+      with:
+       PROJECT_FILE_PATH: ./Meow.FaceRecon/Meow.FaceRecon.csproj
+       NUGET_KEY: ${{secrets.NUGET_API_KEY}}

@@ -23,14 +23,14 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore ./Meow.FaceRecon/Meow.FaceRecon4/Meow.FaceRecon4.csproj
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon4/
+      run: dotnet restore Meow.FaceRecon4.csproj
+      working-directory: ./Meow.FaceRecon4/
     - name: Build
-      run: dotnet build ./Meow.FaceRecon/Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-restore
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon4/
+      run: dotnet build Meow.FaceRecon4.csproj --no-restore
+      working-directory: ./Meow.FaceRecon4/
     - name: Test
-      run: dotnet test ./Meow.FaceRecon/Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-build --verbosity normal
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon4/
+      run: dotnet test Meow.FaceRecon4.csproj --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon4/
     - name: Publish
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
@@ -46,14 +46,14 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore ./Meow.FaceRecon/Meow.FaceRecon/Meow.FaceRecon.csproj
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon/
+      run: dotnet restore Meow.FaceRecon.csproj
+      working-directory: ./Meow.FaceRecon/
     - name: Build
-      run: dotnet build ./Meow.FaceRecon/Meow.FaceRecon/Meow.FaceRecon.csproj --no-restore
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon/
+      run: dotnet build Meow.FaceRecon.csproj --no-restore
+      working-directory: ./Meow.FaceRecon/
     - name: Test 
-      run: dotnet test ./Meow.FaceRecon/Meow.FaceRecon/Meow.FaceRecon.csproj --no-build --verbosity normal
-      working-directory: ./Meow.FaceRecon/Meow.FaceRecon/
+      run: dotnet test Meow.FaceRecon.csproj --no-build --verbosity normal
+      working-directory: ./Meow.FaceRecon/
     - name: Publish
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:

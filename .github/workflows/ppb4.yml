@@ -14,13 +14,13 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./Meow.FaceRecon4/Meow.FaceRecon4.csproj
       working-directory: ./Meow.FaceRecon4/
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ./Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-restore
       working-directory: ./Meow.FaceRecon4/
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./Meow.FaceRecon4/Meow.FaceRecon4.csproj --no-build --verbosity normal
       working-directory: ./Meow.FaceRecon4/
     - name: Publish
       uses: brandedoutcast/publish-nuget@v2.5.2

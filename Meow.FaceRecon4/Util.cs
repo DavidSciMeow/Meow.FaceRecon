@@ -1,8 +1,9 @@
-﻿using Meow.FaceRecon.NativeSDK;
+﻿using Meow.FaceRecon4.NativeSDK;
+using Meow.FaceRecon4.SDK.Model;
 using SkiaSharp;
 using System.Runtime.InteropServices;
 
-namespace Meow.FaceRecon
+namespace Meow.FaceRecon4
 {
     /// <summary>
     /// 工具类
@@ -15,9 +16,9 @@ namespace Meow.FaceRecon
         /// <param name="log">具体内容</param>
         /// <param name="serverity">程度</param>
         /// <returns></returns>
-        public static void ToLog(this string log,int serverity = 0)
+        public static void ToLog(this string log, int serverity = 0)
         {
-            if(SDK.GlobalSetting.LogMode <= serverity)
+            if (SDK.GlobalSetting.LogMode <= serverity)
             {
                 Console.ForegroundColor = serverity switch
                 {
@@ -109,7 +110,6 @@ namespace Meow.FaceRecon
                 APIResult.MERR_ASF_DETECT_MODEL_UNSUPPORTED => "检测模型不支持，请查看对应接口说明，使用当前支持的检测模型",
                 APIResult.MERR_ASF_CURRENT_DEVICE_TIME_INCORRECT => "当前设备时间不正确，请调整设备时间",
                 APIResult.MERR_ASF_ACTIVATION_QUANTITY_OUT_OF_LIMIT => "年度激活数量超出限制，次年清零",
-                APIResult.MERR_ASF_IP_BLACK_LIST => "频繁请求，4小时后解禁",
                 APIResult.MERR_ASF_NETWORK_BASE => "网络错误类型",
                 APIResult.MERR_ASF_NETWORK_COULDNT_RESOLVE_HOST => "无法解析主机地址",
                 APIResult.MERR_ASF_NETWORK_COULDNT_CONNECT_SERVER => "无法连接服务器",
@@ -137,30 +137,6 @@ namespace Meow.FaceRecon
                 APIResult.MERR_ASF_LICENSE_FILE_VERSION_TOO_LOW => "离线授权文件版本过低，请使用新版本激活助手重新进行离线激活",
                 _ => "未知错误",
             };
-        }
-        /// <summary>
-        /// 转换成人脸总体列表模式
-        /// </summary>
-        /// <param name="s">SDK_FaceGeneral类</param>
-        /// <returns></returns>
-        public static List<SDK.Model.SDK_Faces> ConvertIntoFaces(this SDK.Model.SDK_FaceGeneral s)
-        {
-            List<SDK.Model.SDK_Faces> fs = new();
-            for (int i = 0; i < s.faceNum; i++)
-            { //reduce to any format
-                var f = new SDK.Model.SDK_Faces();
-                try { f.age = s.ageArray[i]; }catch { }
-                try { f.gender = s.genderArray[i]; }catch { }
-                try { f.faceRect = s.faceRect[i]; }catch { }
-                try { f.faceOrient = s.faceOrient[i]; }catch { }
-                try { f.pitch = s.pitch[i]; }catch { }
-                try { f.roll = s.roll[i]; }catch { }
-                try { f.yaw = s.yaw[i]; }catch { }
-                try { f.status = s.status[i]; }catch { }
-                try { f.liveness = s.liveness[i]; }catch { }
-                fs.Add(f);
-            }
-            return fs;
         }
         /// <summary>
         /// [Meow扩展]获取打包好的Pack
@@ -223,20 +199,20 @@ namespace Meow.FaceRecon
                     break;
                 }
             }
-            using SKBitmap bp = new(w_,b.Height,SKColorType.Rgb888x,SKAlphaType.Opaque);
-            if(!b.ScalePixels(bp, SKFilterQuality.None))
+            using SKBitmap bp = new(w_, b.Height, SKColorType.Rgb888x, SKAlphaType.Opaque);
+            if (!b.ScalePixels(bp, SKFilterQuality.None))
             {
                 throw new Exception($"IMG_Skia Phase : [exc] 图像处理异常,无法放缩图像");
             }
             var h = bp.Height;
             var w = bp.Width;
             var p = bp.Width * 3; //stride
-            var arr = new byte[h * p]; 
+            var arr = new byte[h * p];
             int i = 0;
             int j = 0;
-            foreach(var k in bp.Bytes)
+            foreach (var k in bp.Bytes)
             {
-                if(i++ == 3)
+                if (i++ == 3)
                 {
                     i = 0;
                     continue;
@@ -264,7 +240,7 @@ namespace Meow.FaceRecon
         /// <param name="text">字体</param>
         /// <param name="Color">颜色</param>
         /// <param name="fontName">字体库</param>
-        public static SKBitmap DrawStringAndRect(this SKBitmap b, 
+        public static SKBitmap DrawStringAndRect(this SKBitmap b,
             MRECT m, string text, SKColor Color, string fontName = "微软雅黑")
         {
             var textsize = (m.bottom - m.top) / 2;
@@ -273,7 +249,7 @@ namespace Meow.FaceRecon
             using SKSurface surface = SKSurface.Create(b.Info);
             using SKCanvas c = surface.Canvas;
             c.DrawBitmap(b, 0, 0);
-            c.DrawRoundRect(new SKRoundRect(new SKRect(m.left, m.top, m.right, m.bottom),5f), new()
+            c.DrawRoundRect(new SKRoundRect(new SKRect(m.left, m.top, m.right, m.bottom), 5f), new()
             {
                 StrokeWidth = 5,
                 Color = Color,
@@ -298,11 +274,11 @@ namespace Meow.FaceRecon
         /// <param name="fontName"></param>
         /// <returns></returns>
         public static SKBitmap DrawStringAndRect(this SKBitmap b,
-            SDK.Model.SDK_Faces t, string fontName = "微软雅黑")
+            SDK_Faces t, string fontName = "微软雅黑")
         {
             return b.DrawStringAndRect(
-                t.faceRect, 
-                $"{t.age}", 
+                t.faceRect,
+                $"{t.age}",
                 (t.gender == 1 ? new(255, 192, 203, 150) : (t.gender == 0 ? new(65, 105, 225, 150) : new(0, 0, 0, 150))),
                 fontName
                 );
@@ -342,23 +318,41 @@ namespace Meow.FaceRecon
         /// <param name="base64String"></param>
         /// <returns></returns>
         public static SKBitmap Base64ToSKBitmap(this string base64String) => SKBitmap.Decode(Convert.FromBase64String(base64String));
+       
         /// <summary>
         /// 转换默认类型到SDK类型
         /// </summary>
         /// <param name="info">原始类型</param>
         /// <returns></returns>
-        public static SDK.Model.SDK_MultiFaceInfo InfoToSDKInfo(this ASF_MultiFaceInfo info)
+        public static SDK_MultiFaceInfo InfoToSDKInfo(this ASF_MultiFaceInfo info)
         {
-            SDK.Model.SDK_MultiFaceInfo result = new();
+            SDK_MultiFaceInfo result = new();
             result.faceNum = info.faceNum;
             for (int j = 0; j < info.faceNum; j++)
             {
                 //构造类
                 result.faceRect.Add(Marshal.PtrToStructure<MRECT>(info.faceRect));
                 result.faceOrient.Add((ASF_OrientCode)Marshal.PtrToStructure<int>(info.faceOrient));
+                result.faceID.Add(Marshal.PtrToStructure<int>(info.faceID));
+                var k = Marshal.PtrToStructure<ASF_FaceDataInfo>(info.faceDataInfoList);
+                result.faceDataInfoList.Add(new() { Data = Marshal.PtrToStringAuto(k.data),DataSize = k.dataSize });
+                result.faceIsWithinBoundary.Add(Marshal.PtrToStructure<int>(info.faceIsWithinBoundary));
+                result.foreheadRect.Add(Marshal.PtrToStructure<MRECT>(info.foreheadRect));
+                var k2 = Marshal.PtrToStructure<ASF_FaceAttributeInfo>(info.faceAttributeInfo);
+                result.faceAttributeInfo.Add(new SDK_FaceAttributeInfo() { WearGlass = k2.wearGlass, LeftEyeOpen = k2.leftEyeOpen == 1,RightEyeOpen = k2.rightEyeOpen == 1, MouthClose = k2.mouthClose == 1});
+                var k3 = Marshal.PtrToStructure<ASF_Face3DAngle>(info.face3DAngleInfo);
+                result.face3DAngleInfo.Add(new SDK_Face3DAngle() { pitch = k3.pitch, roll = k3.roll, yaw = k3.yaw});
+
                 //步进记录(原始)
                 info.faceRect += Marshal.SizeOf(typeof(MRECT));
                 info.faceOrient += Marshal.SizeOf(typeof(int));
+                info.faceID += Marshal.SizeOf(typeof(int));
+                info.faceDataInfoList += Marshal.SizeOf(typeof(ASF_FaceDataInfo));
+                info.faceIsWithinBoundary += Marshal.SizeOf(typeof(int));
+                info.foreheadRect += Marshal.SizeOf(typeof(int));
+                info.faceAttributeInfo += Marshal.SizeOf(typeof(ASF_FaceAttributeInfo));
+                info.face3DAngleInfo += Marshal.SizeOf(typeof(ASF_Face3DAngle));
+
             }
             return result;
         }

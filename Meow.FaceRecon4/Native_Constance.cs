@@ -1,10 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Meow.FaceRecon.NativeSDK
+namespace Meow.FaceRecon4.NativeSDK
 {
-    /// <summary>
-    /// SDK常量
-    /// </summary>
     public enum Mask
     {
         /// <summary>
@@ -40,6 +37,14 @@ namespace Meow.FaceRecon.NativeSDK
         /// IR活体
         /// </summary>
         ASF_IR_LIVENESS = 1024,
+        /// <summary>
+        /// 口罩检测
+        /// </summary>
+        ASF_MASKDETECT = 2048,
+        /// <summary>
+        /// 更新人脸数据
+        /// </summary>
+        ASF_UPDATE_FACEDATA = 4096,
     }
     /// <summary>
     /// 检测模式
@@ -158,6 +163,17 @@ namespace Meow.FaceRecon.NativeSDK
         /// 用于证件照或生活照与证件照之间的特征比对，推荐阈值0.82
         /// </summary>
         ASF_ID_PHOTO = 2,
+    }
+    /// <summary>
+    /// 特征是否注册
+    /// </summary>
+    public enum ASF_RegisterOrNot
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        ASF_RECONGNITION = 0,
+        ASF_REFISTER = 1
     }
     /// <summary>
     /// 色彩空间
@@ -426,8 +442,35 @@ namespace Meow.FaceRecon.NativeSDK
         ASVL_PAF_RAW10_GRAY_16B = 3713,
     }
 
-    //[StructLayout(LayoutKind.Sequential)]
-
+    /// <summary>
+    /// 定义图片格式空间
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ASVLOFFSCREEN
+    {
+        /// <summary>
+        /// 无符号int类型像素数组类型
+        /// </summary>
+        public uint u32PixelArrayFormat;
+        /// <summary>
+        /// 宽度
+        /// </summary>
+        public int i32Width;
+        /// <summary>
+        /// 高度
+        /// </summary>
+        public int i32Height;
+        /// <summary>
+        /// ui8-指针-指针 平面
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.SysUInt)]
+        public IntPtr[] ppu8Plane;
+        /// <summary>
+        /// int类指针 俯仰
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.I4)]
+        public int[] pi32Pitch;
+    }
     /// <summary>
     /// 识别矩形
     /// </summary>
@@ -500,8 +543,60 @@ namespace Meow.FaceRecon.NativeSDK
         public string CopyRight;
     }
 
-    //asrsoft_Face_sdk.h
-
+    /// <summary>
+    /// 人脸属性信息
+    /// </summary>
+    public struct ASF_FaceAttributeInfo
+    {
+        /// <summary>
+        /// 戴眼镜状态, 0 未戴眼镜；1 戴眼镜；2 墨镜
+        /// </summary>
+        public int wearGlass;
+        /// <summary>
+        /// 左眼状态 0 闭眼；1 睁眼
+        /// </summary>
+        public int leftEyeOpen;
+        /// <summary>
+        /// 右眼状态 0 闭眼；1 睁眼
+        /// </summary>
+        public int rightEyeOpen;
+        /// <summary>
+        /// 张嘴状态 0 张嘴；1 合嘴
+        /// </summary>
+        public int mouthClose;
+    }
+    /// <summary>
+    /// 获取3D角度信息
+    /// </summary>
+    public struct ASF_Face3DAngle
+    {
+        /// <summary>
+        /// 滚转
+        /// </summary>
+        public float roll;
+        /// <summary>
+        /// 偏航
+        /// </summary>
+        public float yaw;
+        /// <summary>
+        /// 俯仰
+        /// </summary>
+        public float pitch;
+    }
+    /// <summary>
+    /// 人脸信息
+    /// </summary>
+    public struct ASF_FaceDataInfo
+    {
+        /// <summary>
+        /// 人脸信息
+        /// </summary>
+        public IntPtr data;
+        /// <summary>
+        /// 人脸信息长度
+        /// </summary>
+        public int dataSize;
+    }
     /// <summary>
     /// 单人脸信息
     /// </summary>
@@ -515,6 +610,10 @@ namespace Meow.FaceRecon.NativeSDK
         /// 输入图像的角度，可以参考 ArcFaceCompare_OrientCode
         /// </summary>
         public int faceOrient;
+        /// <summary>
+        /// 单张人脸信息
+        /// </summary>
+        public ASF_FaceDataInfo faceDataInfo;
     }
     /// <summary>
     /// 多人脸信息
@@ -522,7 +621,11 @@ namespace Meow.FaceRecon.NativeSDK
     public struct ASF_MultiFaceInfo
     {
         /// <summary>
-        /// 人脸框信息
+        /// 检测到的人脸个数
+        /// </summary>
+        public int faceNum;
+        /// <summary>
+        /// 人脸框信息 MRECT
         /// </summary>
         public IntPtr faceRect;
         /// <summary>
@@ -530,13 +633,29 @@ namespace Meow.FaceRecon.NativeSDK
         /// </summary>
         public IntPtr faceOrient;
         /// <summary>
-        /// 检测到的人脸个数
-        /// </summary>
-        public int faceNum;
-        /// <summary>
         /// face ID，IMAGE模式下不返回FaceID
         /// </summary>
         public IntPtr faceID;
+        /// <summary>
+        /// 人脸检测信息 ASF_FaceDataInfo
+        /// </summary>
+        public IntPtr faceDataInfoList;
+        /// <summary>
+        /// 人脸是否在边界内 0 人脸溢出；1 人脸在图像边界内 (int)
+        /// </summary>
+        public IntPtr faceIsWithinBoundary;
+        /// <summary>
+        /// 人脸额头区域 MRECT
+        /// </summary>
+        public IntPtr foreheadRect;
+        /// <summary>
+        /// 人脸属性信息 ASF_FaceAttributeInfo
+        /// </summary>
+        public IntPtr faceAttributeInfo;
+        /// <summary>
+        /// 人脸3D角度 ASF_Face3DAngleInfo
+        /// </summary>
+        public IntPtr face3DAngleInfo;
     }
     /// <summary>
     /// 激活文件信息
@@ -585,6 +704,58 @@ namespace Meow.FaceRecon.NativeSDK
         public string fileVersion;
     }
     /// <summary>
+    /// 人脸 属性阈值
+    /// </summary>
+    public struct ASF_FaceAttributeThreshold
+    {
+        /// <summary>
+        /// [in] 睁眼幅度阈值，阈值越大睁眼幅度越大
+        /// </summary>
+        public float eyeOpenThreshold;
+        /// <summary>
+        /// [in] 张嘴幅度阈值，阈值越大，张嘴幅度越小
+        /// </summary>
+        public float mouthCloseThreshold;
+        /// <summary>
+        /// [in] 佩戴眼镜阈值
+        /// </summary>
+        public float wearGlassesThreshold;
+    }
+    /// <summary>
+    /// 人脸识别相关 人脸特征信息
+    /// </summary>
+    public struct ASF_FaceFeature
+    {
+        /// <summary>
+        /// 人脸特征信息
+        /// </summary>
+        public IntPtr feature;
+        /// <summary>
+        /// 人脸特征信息长度
+        /// </summary>
+        public int featureSize;
+    }
+    /// <summary>
+    /// 人脸识别相关 人脸特征信息组
+    /// </summary>
+    public struct ASF_FaceFeatureInfo
+    {
+        /// <summary>
+        /// 唯一标识符
+        /// </summary>
+        public int searchId;
+        /// <summary>
+        /// 人脸特征值
+        /// </summary>
+        public ASF_FaceFeature feature;
+        /// <summary>
+        /// 备注
+        /// </summary>
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string tag;
+    }
+
+    /// <summary>
     /// 活体阈值设置
     /// </summary>
     public struct ASF_LivenessThreshold
@@ -597,87 +768,10 @@ namespace Meow.FaceRecon.NativeSDK
         /// IR
         /// </summary>
         public float thresholdmodel_IR;
-    }
-    /// <summary>
-    /// 定义图片格式空间
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct ASVLOFFSCREEN
-    {
         /// <summary>
-        /// 无符号int类型像素数组类型
+        /// FQ
         /// </summary>
-        public uint u32PixelArrayFormat;
-        /// <summary>
-        /// 宽度
-        /// </summary>
-        public int i32Width;
-        /// <summary>
-        /// 高度
-        /// </summary>
-        public int i32Height;
-        /// <summary>
-        /// ui8-指针-指针 平面
-        /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.SysUInt)]
-        public IntPtr[] ppu8Plane;
-        /// <summary>
-        /// int类指针 俯仰
-        /// </summary>
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4, ArraySubType = UnmanagedType.I4)]
-        public int[] pi32Pitch;
-    }
-    /// <summary>
-    /// 定义SDK版本信息(模板)
-    /// </summary>
-    public struct ASVL_VERSION
-    {
-        /// <summary>
-        /// Codebase version number 
-        /// </summary>
-        public int lCodebase;
-        /// <summary>
-        /// major version number 
-        /// </summary>
-        public int lMajor;
-        /// <summary>
-        /// minor version number
-        /// </summary>
-        public int lMinor;
-        /// <summary>
-        /// Build version number, increasable only
-        /// </summary>
-        public int lBuild;
-        /// <summary>
-        /// version in string form
-        /// </summary>
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string Version;
-        /// <summary>
-        /// latest build Date
-        /// </summary>
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string BuildDate;
-        /// <summary>
-        /// copyright 
-        /// </summary>
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string CopyRight;
-    }
-    /// <summary>
-    /// 人脸特征
-    /// </summary>
-    public struct ASF_FaceFeature
-    {
-        /// <summary>
-        /// 人脸特征信息
-        /// </summary>
-        [MarshalAs(UnmanagedType.LPStr)]
-        public string feature;
-        /// <summary>
-        /// 人脸特征信息长度
-        /// </summary>
-        public int featureSize;
+        public float thresholdmodel_FQ;
     }
     /// <summary>
     /// 年龄
@@ -710,33 +804,6 @@ namespace Meow.FaceRecon.NativeSDK
         public int num;
     }
     /// <summary>
-    /// 获取3D角度信息
-    /// </summary>
-    public struct ASF_Face3DAngle
-    {
-        /// <summary>
-        /// 滚转
-        /// </summary>
-        public IntPtr roll;
-        /// <summary>
-        /// 偏航
-        /// </summary>
-        public IntPtr yaw;
-        /// <summary>
-        /// 俯仰
-        /// </summary>
-        public IntPtr pitch;
-        /// <summary>
-        /// 状态码
-        /// <para>0: 正常，其他数值：出错</para>
-        /// </summary>
-        public IntPtr status;
-        /// <summary>
-        /// 脸的位置数值
-        /// </summary>
-        public int num;
-    }
-    /// <summary>
     /// 活体信息
     /// </summary>
     public struct ASF_LivenessInfo
@@ -745,10 +812,26 @@ namespace Meow.FaceRecon.NativeSDK
         /// [out] 判断是否真人
         /// <para>0：非真人 1：真人 -1：不确定 -2:传入人脸数>1</para>
         /// <para>-3: 人脸过小 -4: 角度过大 -5: 人脸超出边界</para>
+        /// <para>-6: 深度图错误 -7: 红外图太亮了 -8: 红外图太暗了</para>
+        /// <para>-100: 人脸质量错误</para>
         /// </summary>
         public IntPtr isLive;
         /// <summary>
         /// 检测结果数量
+        /// </summary>
+        public int num;
+    }
+    /// <summary>
+    /// 口罩信息
+    /// </summary>
+    public struct ASF_MaskInfo
+    {
+        /// <summary>
+        /// "0" 代表没有带口罩，"1"代表带口罩 ,"-1"表不确定
+        /// </summary>
+        public IntPtr maskArray;
+        /// <summary>
+        /// 检测的人脸个数
         /// </summary>
         public int num;
     }

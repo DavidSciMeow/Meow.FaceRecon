@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>Meow.FaceRecon4</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>DavidSciMeow</Authors>
+    <Company>Electronicute</Company>
+    <Product>Meow.FaceRecon4</Product>
+    <Description>Arcsoft FaceDetector V4.1 C# Warpper and Util</Description>
+    <Copyright>@2022 Electronicute</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>FaceRecognition,FaceDetctor,Arcsoft</PackageTags>
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <RepositoryUrl>https://github.com/DavidSciMeow/Meow.FaceRecon</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>

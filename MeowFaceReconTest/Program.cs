@@ -1,10 +1,10 @@
 ﻿using Meow.FaceRecon;
 using Meow.FaceRecon.SDK;
-using MeowFaceReconTest;
+using Test;
 
 GlobalSetting.LogMode = -1;
 
-var fp = "D:/123.png";
+var fp = "./test.jpg";
 var s = SkiaSharp.SKBitmap.Decode(new SkiaSharp.SKManagedStream(File.OpenRead(fp)));
 var ep = new FaceReconPool(pwd.appid, pwd.sdkwin, pwd.sdklinux);
 var mfi = new MultiFaceEngine(ep.Appid, ep.Key).Detect(s);

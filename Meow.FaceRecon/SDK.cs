@@ -37,7 +37,6 @@ namespace Meow.FaceRecon
             PlatformID plid = Environment.OSVersion.Platform;
             if (plid == PlatformID.Unix)
             {
-                AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true); //设置linux模式(.net6)
                 $"EnginePool Init Phase : [ETIL] SystemTypeIsLinux".ToLog();
                 Key = LinuxKey;
             }

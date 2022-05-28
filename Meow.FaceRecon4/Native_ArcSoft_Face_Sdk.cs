@@ -378,7 +378,7 @@ namespace Meow.FaceRecon4.NativeSDK
         /// <param name="hEngine">[in] 引擎handle</param>
         /// <param name="p3DAngleInfo">[out] 检测到脸部3D 角度信息</param>
         /// <returns></returns>
-        [Obsolete("新版文档未提及")]
+        [Obsolete("新版文档未提及",true)]
         [DllImport(lib, EntryPoint = nameof(ASFGetFace3DAngle), CallingConvention = cc)]
         public static extern int ASFGetFace3DAngle(IntPtr hEngine, out ASF_Face3DAngle p3DAngleInfo);
         /// <summary>

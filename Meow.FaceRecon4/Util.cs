@@ -54,6 +54,9 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_NO_DISKSPACE => "存贮空间不足",
                 APIResult.MERR_COMPONENT_NOT_EXIST => "组件不存在",
                 APIResult.MERR_GLOBAL_DATA_NOT_EXIST => "全局数据不存在",
+                APIResult.MERRP_IMGCODEC => "图像错误",
+                APIResult.MERR_FILE_GENERAL => "文件错误",
+
                 APIResult.MERR_FSDK_BASE => "Free SDK通用错误类型",
                 APIResult.MERR_FSDK_INVALID_APP_ID => "无效的App Id",
                 APIResult.MERR_FSDK_INVALID_SDK_ID => "无效的SDK key",
@@ -61,18 +64,39 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_FSDK_MISMATCH_ID_AND_SDK => "SDKKey 和使用的SDK 不匹配",
                 APIResult.MERR_FSDK_SYSTEM_VERSION_UNSUPPORTED => "系统版本不被当前SDK所支持",
                 APIResult.MERR_FSDK_LICENCE_EXPIRED => "SDK有效期过期，需要重新下载更新",
+
+                APIResult.MERR_FSDK_APS_ERROR_BASE => "PhotoStyling 错误类型",
+                APIResult.MERR_FSDK_APS_ENGINE_HANDLE => "引擎句柄非法",
+                APIResult.MERR_FSDK_APS_MEMMGR_HANDLE => "内存句柄非法",
+                APIResult.MERR_FSDK_APS_DEVICEID_INVALID => "Device ID 非法",
+                APIResult.MERR_FSDK_APS_DEVICEID_UNSUPPORTED => "Device ID 不支持",
+                APIResult.MERR_FSDK_APS_MODEL_HANDLE => "模板数据指针非法",
+                APIResult.MERR_FSDK_APS_MODEL_SIZE => "模板数据长度非法",
+                APIResult.MERR_FSDK_APS_IMAGE_HANDLE => "图像结构体指针非法",
+                APIResult.MERR_FSDK_APS_IMAGE_FORMAT_UNSUPPORTED => "图像格式不支持",
+                APIResult.MERR_FSDK_APS_IMAGE_PARAM => "图像参数非法",
+                APIResult.MERR_FSDK_APS_IMAGE_SIZE => "图像尺寸大小超过支持范围",
+                APIResult.MERR_FSDK_APS_DEVICE_AVX2_UNSUPPORTED => "处理器不支持AVX2指令",
+
                 APIResult.MERR_FSDK_FR_ERROR_BASE => "Face Recognition错误类型",
                 APIResult.MERR_FSDK_FR_INVALID_MEMORY_INFO => "无效的输入内存",
                 APIResult.MERR_FSDK_FR_INVALID_IMAGE_INFO => "无效的输入图像参数",
                 APIResult.MERR_FSDK_FR_INVALID_FACE_INFO => "无效的脸部信息",
                 APIResult.MERR_FSDK_FR_NO_GPU_AVAILABLE => "当前设备无GPU可用",
                 APIResult.MERR_FSDK_FR_MISMATCHED_FEATURE_LEVEL => "待比较的两个人脸特征的版本不一致",
+
                 APIResult.MERR_FSDK_FACEFEATURE_ERROR_BASE => "人脸特征检测错误类型",
                 APIResult.MERR_FSDK_FACEFEATURE_UNKNOWN => "人脸特征检测错误未知",
                 APIResult.MERR_FSDK_FACEFEATURE_MEMORY => "人脸特征检测内存错误",
                 APIResult.MERR_FSDK_FACEFEATURE_INVALID_FORMAT => "人脸特征检测格式错误",
                 APIResult.MERR_FSDK_FACEFEATURE_INVALID_PARAM => "人脸特征检测参数错误",
                 APIResult.MERR_FSDK_FACEFEATURE_LOW_CONFIDENCE_LEVEL => "人脸特征检测结果置信度低",
+                APIResult.MERR_FSDK_FACEFEATURE_EXPIRED => "人脸特征检测结果操作过期",
+                APIResult.MERR_FSDK_FACEFEATURE_MISSFACE => "人脸特征检测人脸丢失",
+                APIResult.MERR_FSDK_FACEFEATURE_NO_FACE => "人脸特征检测没有人脸",
+                APIResult.MERR_FSDK_FACEFEATURE_FACEDATD => "人脸特征检测人脸信息错误",
+                APIResult.MERR_FSDK_FACEFEATURE_STATUES_ERROR => "人脸特征检测人脸状态错误",
+
                 APIResult.MERR_ASF_EX_BASE => "ASF错误类型",
                 APIResult.MERR_ASF_EX_FEATURE_UNSUPPORTED_ON_INIT => "Engine不支持的检测属性",
                 APIResult.MERR_ASF_EX_FEATURE_UNINITED => "需要检测的属性未初始化",
@@ -80,6 +104,7 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_ASF_EX_FEATURE_UNSUPPORTED_ON_PROCESS => "PROCESS不支持的检测属性组合，例如FR，有自己独立的处理函数",
                 APIResult.MERR_ASF_EX_INVALID_IMAGE_INFO => "无效的输入图像",
                 APIResult.MERR_ASF_EX_INVALID_FACE_INFO => "无效的脸部信息",
+
                 APIResult.MERR_ASF_BASE => "人脸比对基础错误类型",
                 APIResult.MERR_ASF_ACTIVATION_FAIL => "SDK激活失败,请打开读写权限",
                 APIResult.MERR_ASF_ALREADY_ACTIVATED => "SDK已激活",
@@ -96,6 +121,7 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_ASF_UNIQUE_CHECKOUT_FAIL => "唯一标识符校验失败",
                 APIResult.MERR_ASF_COLOR_SPACE_NOT_SUPPORT => "颜色空间不支持",
                 APIResult.MERR_ASF_IMAGE_WIDTH_HEIGHT_NOT_SUPPORT => "图片宽高不支持，宽度需四字节对齐",
+
                 APIResult.MERR_ASF_READ_PHONE_STATE_DENIED => "android.permission.READ_PHONE_STATE权限被拒绝",
                 APIResult.MERR_ASF_ACTIVATION_DATA_DESTROYED => "激活数据被破坏,请删除激活文件，重新进行激活",
                 APIResult.MERR_ASF_SERVER_UNKNOWN_ERROR => "服务端未知错误",
@@ -110,11 +136,13 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_ASF_DETECT_MODEL_UNSUPPORTED => "检测模型不支持，请查看对应接口说明，使用当前支持的检测模型",
                 APIResult.MERR_ASF_CURRENT_DEVICE_TIME_INCORRECT => "当前设备时间不正确，请调整设备时间",
                 APIResult.MERR_ASF_ACTIVATION_QUANTITY_OUT_OF_LIMIT => "年度激活数量超出限制，次年清零",
+
                 APIResult.MERR_ASF_NETWORK_BASE => "网络错误类型",
                 APIResult.MERR_ASF_NETWORK_COULDNT_RESOLVE_HOST => "无法解析主机地址",
                 APIResult.MERR_ASF_NETWORK_COULDNT_CONNECT_SERVER => "无法连接服务器",
                 APIResult.MERR_ASF_NETWORK_CONNECT_TIMEOUT => "网络连接超时",
                 APIResult.MERR_ASF_NETWORK_UNKNOWN_ERROR => "网络未知错误",
+
                 APIResult.MERR_ASF_ACTIVEKEY_BASE => "激活码错误类型",
                 APIResult.MERR_ASF_ACTIVEKEY_COULDNT_CONNECT_SERVER => "无法连接激活服务器",
                 APIResult.MERR_ASF_ACTIVEKEY_SERVER_SYSTEM_ERROR => "服务器系统错误",
@@ -126,6 +154,7 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_ASF_ACTIVEKEY_SDK_FILE_MISMATCH => "SDK与激活文件版本不匹配",
                 APIResult.MERR_ASF_ACTIVEKEY_EXPIRED => "ACTIVEKEY已过期",
                 APIResult.MERR_ASF_ACTIVEKEY_DEVICE_OUT_OF_LIMIT => "批量授权激活码设备数超过限制",
+
                 APIResult.MERR_ASF_OFFLINE_BASE => "离线激活错误码类型",
                 APIResult.MERR_ASF_LICENSE_FILE_NOT_EXIST => "离线授权文件不存在或无读写权限",
                 APIResult.MERR_ASF_LICENSE_FILE_DATA_DESTROYED => "离线授权文件已损坏",
@@ -135,6 +164,16 @@ namespace Meow.FaceRecon4
                 APIResult.MERR_ASF_LICENSE_FILE_EXPIRED => "离线授权文件已过期",
                 APIResult.MERR_ASF_LOCAL_EXIST_USEFUL_ACTIVE_FILE => "离线授权文件不可用，本地原有激活文件可继续使用",
                 APIResult.MERR_ASF_LICENSE_FILE_VERSION_TOO_LOW => "离线授权文件版本过低，请使用新版本激活助手重新进行离线激活",
+                
+                APIResult.MERR_ASF_SEARCH_BASE => "搜索接口错误码类型",
+                APIResult.MERR_ASF_SEARCH_EMPTY => "人脸列表为空",
+                APIResult.MERR_ASF_SEARCH_NO_EXIST => "人脸不存在",
+                APIResult.MERR_ASF_SEARCH_FEATURE_SIZE_MISMATCH => "特征值长度不匹配",
+                APIResult.MERR_ASF_SEARCH_LOW_CONFIDENCE => "相似度异常",
+
+                APIResult.MERR_ASF_RESERVED_BASE => "预留字段错误码类型",
+                APIResult.MERR_ASF_UNRESTRICTED_TIME_LIMIT_EXCEEDED => "非限制时段数量超出(限制时段：周一到周五 9：00-14：00)",
+
                 _ => "未知错误",
             };
         }
@@ -265,23 +304,6 @@ namespace Meow.FaceRecon4
             });
             c.Save();
             return SKBitmap.Decode(surface.Snapshot().Encode(SKEncodedImageFormat.Jpeg, 100));
-        }
-        /// <summary>
-        /// 图上绘制框和文字 (默认年龄,男蓝框女粉框未检测出来黑框)
-        /// </summary>
-        /// <param name="b"></param>
-        /// <param name="t"></param>
-        /// <param name="fontName"></param>
-        /// <returns></returns>
-        public static SKBitmap DrawStringAndRect(this SKBitmap b,
-            SDK_Faces t, string fontName = "微软雅黑")
-        {
-            return b.DrawStringAndRect(
-                t.faceRect,
-                $"{t.age}",
-                (t.gender == 1 ? new(255, 192, 203, 150) : (t.gender == 0 ? new(65, 105, 225, 150) : new(0, 0, 0, 150))),
-                fontName
-                );
         }
         /// <summary>
         /// [Meow扩展]将Image对象转换为Base64

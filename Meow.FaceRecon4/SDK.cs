@@ -1,47 +1,43 @@
-﻿namespace Meow.FaceRecon4
+﻿using Meow.FaceRecon4.NativeSDK;
+
+namespace Meow.FaceRecon4
 {
     /// <summary>
     /// 静态操作获取(自动管理池)
     /// </summary>
     public class FaceReconPool
     {
-        string WinKey;
-        string LinuxKey;
         /// <summary>
-        /// 应用程序识别号
+        /// 引擎是否激活
         /// </summary>
-        public string Appid { get; private set; }
+        public static bool IsActivate { get; private set; }
         /// <summary>
-        /// Key
-        /// </summary>
-        public string Key { get; private set; }
-
-        /// <summary>
-        /// 生成一个自动管理引擎池
+        /// 在线激活引擎
         /// </summary>
         /// <param name="appid">应用程序识别号</param>
         /// <param name="winKey">winKey</param>
         /// <param name="linuxKey">LinuxKey</param>
-        /// <param name="dm">检测模式</param>
-        /// <param name="op">角度模式</param>
-        /// <param name="nScale">最小人脸尺寸</param>
-        /// <param name="nMaxFaceNum">最大人脸个数</param>
-        public FaceReconPool(string appid, string winKey, string linuxKey)
+        /// <param name="winactiveKey">winActiveKey</param>
+        /// <param name="linuxactiveKey">LinuxActiveKey</param>
+        public FaceReconPool(
+            string appid,
+            string winKey, string linuxKey,
+            string winactiveKey, string linuxactiveKey)
         {
-            Appid = appid;
-            WinKey = winKey;
-            LinuxKey = linuxKey;
             PlatformID plid = Environment.OSVersion.Platform;
+            string key;
+            string activeKey;
             if (plid == PlatformID.Unix)
             {
-                AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true); //设置linux模式(.net6)
                 $"EnginePool Init Phase : [ETIL] SystemTypeIsLinux".ToLog();
-                Key = LinuxKey;
+                key = linuxKey;
+                activeKey = linuxactiveKey;
             }
             else if (plid == PlatformID.Win32NT)
             {
                 $"EnginePool Init Phase : [ETIW] SystemTypeIsWindows".ToLog();
-                Key = WinKey;
+                key = winKey;
+                activeKey = winactiveKey;
             }
             else
             {
@@ -49,6 +45,70 @@
                 throw new Exception("EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持");
             }
             $"EnginePool Init Phase : [OK] 已经实例化密钥管理池".ToLog();
+
+            var s = (APIResult)NativeFunction.ASFOnlineActivation(appid, key, activeKey);
+            if (s != APIResult.MOK)
+            {
+                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
+                {
+                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                    IsActivate = true;
+                }
+                else
+                {
+                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
+                }
+            }
+            else if (s == APIResult.MOK)
+            {
+                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                IsActivate = true;
+            }
+            else
+            {
+                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
+            }
+        }
+        /// <summary>
+        /// 离线激活引擎
+        /// </summary>
+        /// <param name="offlineactivepath">离线激活证书存放位置</param>
+        /// <exception cref="Exception"></exception>
+        public FaceReconPool(string offlineactivepath)
+        {
+            $"EnginePool Init Phase : [OK] 使用离线激活方案".ToLog();
+            if (File.Exists(offlineactivepath))
+            {
+                $"EnginePool Init Phase : [FFOK] 文件路径: {offlineactivepath}".ToLog();
+            }
+            else
+            {
+                $"EnginePool Init Phase : [FNFE] 激活文件未找到".ToLog();
+                throw new Exception("EnginePool Init Phase : [FNFE] 激活文件未找到");
+            }
+
+            var s = (APIResult)NativeFunction.ASFOfflineActivation(offlineactivepath);
+            if (s != APIResult.MOK)
+            {
+                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
+                {
+                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                    IsActivate = true;
+                }
+                else
+                {
+                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
+                }
+            }
+            else if (s == APIResult.MOK)
+            {
+                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                IsActivate = true;
+            }
+            else
+            {
+                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
+            }
         }
     }
 }

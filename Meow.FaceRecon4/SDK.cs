@@ -45,29 +45,7 @@ namespace Meow.FaceRecon4
                 throw new Exception("EnginePool Init Phase : [EISD] 无法判断操作系统类型,您的系统可能不被虹软支持");
             }
             $"EnginePool Init Phase : [OK] 已经实例化密钥管理池".ToLog();
-
-            var s = (APIResult)NativeFunction.ASFOnlineActivation(appid, key, activeKey);
-            if (s != APIResult.MOK)
-            {
-                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
-                {
-                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                    IsActivate = true;
-                }
-                else
-                {
-                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
-                }
-            }
-            else if (s == APIResult.MOK)
-            {
-                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                IsActivate = true;
-            }
-            else
-            {
-                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
-            }
+            IsActivate = NativeFunction.SDKOnlineActivation(appid, key, activeKey);
         }
         /// <summary>
         /// 离线激活引擎
@@ -86,29 +64,7 @@ namespace Meow.FaceRecon4
                 $"EnginePool Init Phase : [FNFE] 激活文件未找到".ToLog();
                 throw new Exception("EnginePool Init Phase : [FNFE] 激活文件未找到");
             }
-
-            var s = (APIResult)NativeFunction.ASFOfflineActivation(offlineactivepath);
-            if (s != APIResult.MOK)
-            {
-                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
-                {
-                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                    IsActivate = true;
-                }
-                else
-                {
-                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
-                }
-            }
-            else if (s == APIResult.MOK)
-            {
-                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                IsActivate = true;
-            }
-            else
-            {
-                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
-            }
+            IsActivate = NativeFunction.SDKOfflineActivation(offlineactivepath);
         }
     }
 }

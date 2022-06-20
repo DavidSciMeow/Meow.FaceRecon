@@ -9,9 +9,12 @@ namespace Meow.FaceRecon4.NativeSDK
     /// </summary>
     public static class NativeFunction
     {
-        const CharSet cs = CharSet.Auto;
         const string lib = "libarcsoft_face_engine";
         const CallingConvention cc = default;
+        public static bool SupressThrowException = false;
+
+        //    return s == APIResult.MOK || (SupressThrowException ? false : throw new Exception($"[{s}] {s.ApiResultToChinese()}"));
+        
 
         /// <summary>
         /// 获取激活文件信息接口
@@ -19,7 +22,18 @@ namespace Meow.FaceRecon4.NativeSDK
         /// <param name="activeFileInfo">[out] 激活文件信息</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFGetActiveFileInfo), CallingConvention = cc)]
-        public static extern int ASFGetActiveFileInfo(out ASF_ActiveFileInfo activeFileInfo);
+        static extern int ASFGetActiveFileInfo(out ASF_ActiveFileInfo activeFileInfo);
+        /// <summary>
+        /// 获取激活文件信息接口
+        /// </summary>
+        /// <param name="activeFileInfo">[out] 激活文件信息</param>
+        /// <returns></returns>
+        public static bool SDKGetActiveFileInfo(out ASF_ActiveFileInfo activeFileInfo)
+        {
+            var s = (APIResult)ASFGetActiveFileInfo(out activeFileInfo);
+            return s == APIResult.MOK || (SupressThrowException ? false : throw new Exception($"[{s}] {s.ApiResultToChinese()}"));
+        }
+
         /// <summary>
         /// 在线激活接口
         /// </summary>
@@ -28,21 +42,118 @@ namespace Meow.FaceRecon4.NativeSDK
         /// <param name="ActiveKey">[in]  ActiveKey	官网下载</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFOnlineActivation), CallingConvention = cc)]
-        public static extern int ASFOnlineActivation(string AppId, string SDKKey, string ActiveKey);
+        static extern int ASFOnlineActivation(string AppId, string SDKKey, string ActiveKey);
+        /// <summary>
+        /// 在线激活接口
+        /// </summary>
+        /// <param name="AppId">[in]  APPID</param>
+        /// <param name="SDKKey">[in]  SDKKEY</param>
+        /// <param name="ActiveKey">[in]  ActiveKey	官网下载</param>
+        /// <returns></returns>
+        public static bool SDKOnlineActivation(string AppId, string SDKKey, string ActiveKey)
+        {
+            var s = (APIResult)ASFOnlineActivation(AppId, SDKKey, ActiveKey);
+            if (s != APIResult.MOK)
+            {
+                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
+                {
+                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                    return true;
+                }
+                else
+                {
+                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
+                }
+            }
+            else if (s == APIResult.MOK)
+            {
+                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                return true;
+            }
+            else
+            {
+                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
+            }
+        }
+
         /// <summary>
         /// 获取设备信息接口
         /// </summary>
         /// <param name="deviceInfo">[out] 采集的设备信息，用于到开发者中心做离线激活，生成离线授权文件</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFGetActiveDeviceInfo), CallingConvention = cc)]
-        public static extern int ASFGetActiveDeviceInfo(out string deviceInfo);
+        static extern int ASFGetActiveDeviceInfo(out string deviceInfo);
+        /// <summary>
+        /// 获取设备信息接口
+        /// </summary>
+        /// <param name="deviceInfo">[out] 采集的设备信息，用于到开发者中心做离线激活，生成离线授权文件</param>
+        /// <returns></returns>
+        public static bool SDKGetActiveDeviceInfo(out string deviceInfo)
+        {
+            var s = (APIResult)ASFGetActiveDeviceInfo(out deviceInfo);
+            return s == APIResult.MOK || (SupressThrowException ? false : throw new Exception($"[{s}] {s.ApiResultToChinese()}"));
+        }
+
         /// <summary>
         /// 离线激活接口
         /// </summary>
         /// <param name="filePath">[in]  许可文件路径(离线授权文件)，需要读写权限</param>
         /// <returns></returns>
         [DllImport(lib, EntryPoint = nameof(ASFOfflineActivation), CallingConvention = cc)]
-        public static extern int ASFOfflineActivation(string filePath);
+        static extern int ASFOfflineActivation(string filePath);
+        /// <summary>
+        /// 离线激活接口
+        /// </summary>
+        /// <param name="filePath">[in]  许可文件路径(离线授权文件)，需要读写权限</param>
+        /// <returns></returns>
+        public static bool SDKOfflineActivation(string filePath)
+        {
+            var s = (APIResult)ASFOfflineActivation(filePath);
+            if (s != APIResult.MOK)
+            {
+                if (s == APIResult.MERR_ASF_ALREADY_ACTIVATED)
+                {
+                    $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                    return true;
+                }
+                else
+                {
+                    throw new Exception($"Activate Phase : [{s}] {s.ApiResultToChinese()}");
+                }
+            }
+            else if (s == APIResult.MOK)
+            {
+                $"Activation Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
+                return true;
+            }
+            else
+            {
+                throw new Exception($"Init Phase : [{s}] {s.ApiResultToChinese()}");
+            }
+        }
+
+        /// <summary>
+        /// 初始化引擎
+        /// </summary>
+        /// <param name="detectMode">
+        /// [in] AF_DETECT_MODE_VIDEO 视频模式：适用于摄像头预览，视频文件识别
+        /// <para>AF_DETECT_MODE_IMAGE 图片模式：适用于静态图片的识别</para>
+        /// </param>
+        /// <param name="detectFaceOrientPriority">
+        /// [in]	检测脸部的角度优先值，参考 ArcFaceCompare_OrientPriority
+        /// </param>
+        /// <param name="detectFaceMaxNum">
+        /// [in] 最大需要检测的人脸个数
+        /// </param>
+        /// <param name="combinedMask">
+        /// [in] 用户选择需要检测的功能组合，可单个或多个
+        /// </param>
+        /// <param name="hEngine">
+        /// [out] 初始化返回的引擎handle
+        /// </param>
+        /// <returns></returns>      
+        [DllImport(lib, EntryPoint = nameof(ASFInitEngine), CallingConvention = cc)]
+        static extern int ASFInitEngine(ASF_DetectMode detectMode, ASF_OrientPriority detectFaceOrientPriority, int detectFaceMaxNum, int combinedMask, out IntPtr hEngine);
         /// <summary>
         /// 初始化引擎
         /// </summary>
@@ -63,8 +174,12 @@ namespace Meow.FaceRecon4.NativeSDK
         /// [out] 初始化返回的引擎handle
         /// </param>
         /// <returns></returns>
-        [DllImport(lib, EntryPoint = nameof(ASFInitEngine), CallingConvention = cc)]
-        public static extern int ASFInitEngine(ASF_DetectMode detectMode, ASF_OrientPriority detectFaceOrientPriority, int detectFaceMaxNum, int combinedMask, out IntPtr hEngine);
+        public static bool SDKInitEngine(ASF_DetectMode detectMode, ASF_OrientPriority detectFaceOrientPriority, int detectFaceMaxNum, int combinedMask, out IntPtr hEngine)
+        {
+            var s = (APIResult)ASFInitEngine(detectMode, detectFaceOrientPriority, detectFaceMaxNum,  combinedMask, out hEngine);
+            return s == APIResult.MOK || (SupressThrowException ? false : throw new Exception($"[{s}] {s.ApiResultToChinese()}"));
+        }
+
         /// <summary>
         /// 设置面部属性
         /// <para>取值范围[0-1]， 默认阈值均为:0.5， 用户可以根据实际需求，设置遮挡范围</para>

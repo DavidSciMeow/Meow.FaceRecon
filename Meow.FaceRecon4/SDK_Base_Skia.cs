@@ -3,6 +3,7 @@ using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,11 +59,7 @@ namespace Meow.FaceRecon4
             CombineMask = mode;
             if (FaceReconPool.IsActivate)
             {
-                var s = (APIResult)NativeFunction.ASFInitEngine(dm, op, nmax, (int)mode, out DetectEngine);
-                if (s != APIResult.MOK)
-                {
-                    $"Init Phase : [{s}] {s.ApiResultToChinese()}".ToLog();
-                }
+                NativeFunction.SDKInitEngine(dm, op, nmax, (int)mode, out DetectEngine);
             }
             else
             {
@@ -104,6 +101,9 @@ namespace Meow.FaceRecon4
         }
     }
 
+    /// <summary>
+    /// 生成一个多人脸检测工具(也可以检测单个人脸)
+    /// </summary>
     public sealed class MultiFaceEngine : Engine
     {
         /// <summary>
@@ -130,12 +130,10 @@ namespace Meow.FaceRecon4
         public ASF_MultiFaceInfo Detect(SKBitmap fp)
         {
             fp.GetBitMapPackX(out var w, out var h, out var ip);
-            var s = (APIResult)NativeFunction.ASFDetectFaces(DetectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, out ASF_MultiFaceInfo info);
-            if (s != APIResult.MOK)
-            {
-                throw new Exception($"Detect_Face Phase : [{s}] {s.ApiResultToChinese()}");
-            }
+            NativeFunction.ASFDetectFaces(DetectEngine, w, h, (int)ColorSpace.ASVL_PAF_RGB24_B8G8R8, ip, out ASF_MultiFaceInfo info);
             return info;
         }
     }
+
+
 }

@@ -279,8 +279,7 @@ namespace Meow.FaceRecon4
         /// <param name="text">字体</param>
         /// <param name="Color">颜色</param>
         /// <param name="fontName">字体库</param>
-        public static SKBitmap DrawStringAndRect(this SKBitmap b,
-            MRECT m, string text, SKColor Color, string fontName = "微软雅黑")
+        public static void DrawStringAndRect(this SKBitmap b, MRECT m, string text, SKColor Color, string fontName = "微软雅黑")
         {
             var textsize = (m.bottom - m.top) / 2;
             var alignleftp = (m.left + (Math.Abs(m.right - m.left)) / 2);
@@ -303,7 +302,7 @@ namespace Meow.FaceRecon4
                 TextSize = textsize,
             });
             c.Save();
-            return SKBitmap.Decode(surface.Snapshot().Encode(SKEncodedImageFormat.Jpeg, 100));
+            b = SKBitmap.Decode(surface.Snapshot().Encode(SKEncodedImageFormat.Jpeg, 100));
         }
         /// <summary>
         /// [Meow扩展]将Image对象转换为Base64
